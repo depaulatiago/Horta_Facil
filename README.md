@@ -37,7 +37,7 @@ Projeto de extensão para recriar o software **Horta Fácil** em formato web, ba
 
 ```bash
 git clone https://github.com/seu-usuario/horta-facil-web.git
-cd horta-facil-web
+cd horta_facil
 ````
 
 2. Instale dependências do backend e rode:
