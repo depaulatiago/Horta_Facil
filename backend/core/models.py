@@ -48,3 +48,4 @@ class Colheita(models.Model):
 
     def __str__(self):
         return f"{self.producao.hortaliça.nome} em {self.data} - {self.quantidade}"
+
