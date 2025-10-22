@@ -49,3 +49,29 @@ class Colheita(models.Model):
     def __str__(self):
         return f"{self.producao.hortaliça.nome} em {self.data} - {self.quantidade}"
 
+class Relatorio(models.Model):
+    # Relacionamento com a horta
+    horta = models.ForeignKey(Horta, on_delete=models.CASCADE)
+
+    # A data é gerada automaticamente
+    data = models.DateField(auto_now_add=True)
+
+    # Campos de dados de entrada
+    total_produzido = models.FloatField(help_text="Total produzido planejado (kg)")
+    total_colhido = models.FloatField(help_text="Total colhido real (kg)")
+    consumo_agua = models.FloatField(help_text="Consumo de água (m³)")
+
+    # Campo calculado
+    eficiencia = models.FloatField(help_text="Eficiência de produção (%)", null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        # Lógica de cálculo da Eficiência
+        if self.total_produzido and self.total_produzido > 0:
+            self.eficiencia = (self.total_colhido / self.total_produzido) * 100
+        else:
+            self.eficiencia = 0.0
+
+        super(Relatorio, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Relatório {self.horta.nome} - {self.data}"

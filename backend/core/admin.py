@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Horta, Hortaliça, Producao, Colheita
+from .models import Horta, Hortaliça, Producao, Colheita, Relatorio
 
 
 @admin.register(Horta)
@@ -28,3 +28,11 @@ class ColheitaAdmin(admin.ModelAdmin):
     list_display = ("id", "producao", "data", "quantidade")
     search_fields = ("producao__hortaliça__nome", "producao__horta__nome")
     list_filter = ("data", "producao__hortaliça")
+
+@admin.register(Relatorio)
+class RelatorioAdmin(admin.ModelAdmin):
+    list_display = ("id", "horta", "data", "total_produzido", "total_colhido", "eficiencia")
+    # Campos que o Admin não pode editar
+    readonly_fields = ("eficiencia", "data")
+    search_fields = ("horta__nome",)
+    list_filter = ("data", "horta")
