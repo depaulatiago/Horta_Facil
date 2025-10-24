@@ -32,7 +32,6 @@ class ColheitaAdmin(admin.ModelAdmin):
 @admin.register(Relatorio)
 class RelatorioAdmin(admin.ModelAdmin):
     list_display = ("id", "horta", "data", "total_produzido", "total_colhido", "eficiencia")
-    # Campos que o Admin não pode editar
     readonly_fields = ("eficiencia", "data")
     search_fields = ("horta__nome",)
     list_filter = ("data", "horta")
