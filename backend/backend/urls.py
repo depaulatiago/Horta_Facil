@@ -1,22 +1,23 @@
-"""
-URL configuration for backend project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include  # <-- Importar 'include'
+from rest_framework import routers     # <-- Importar 'routers'
+from core import views as core_views   # <-- Importar as views do 'core'
 
+# 1. Configura o Roteador do DRF
+router = routers.DefaultRouter()
+router.register(r'hortas', core_views.HortaViewSet, basename='horta')
+router.register(r'hortalicas', core_views.HortalicaViewSet, basename='hortalica')
+router.register(r'cultivos', core_views.CultivoViewSet, basename='cultivo')
+router.register(r'colheitas', core_views.ColheitaViewSet, basename='colheita')
+router.register(r'relatorios', core_views.RelatorioViewSet, basename='relatorio')
+
+# 2. Define os padrões de URL
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls), # URL do Admin (você já tinha)
+    
+    # Adiciona as URLs da API geradas pelo Roteador
+    path('api/', include(router.urls)),
+    
+    # Adiciona URLs de login/logout para a interface do DRF (útil para testes)
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
