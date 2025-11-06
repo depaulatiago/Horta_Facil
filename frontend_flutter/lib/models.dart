@@ -1,5 +1,10 @@
-import 'package:http/http.dart' as http; // <-- ADICIONE ESTA LINHA
-import 'dart:convert';                 // <-- ADICIONE ESTA LINHA
+// lib/models.dart
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+// --- Constante da URL Base da API ---
+// Centralizar a URL aqui facilita mudá-la para produção no futuro.
+const String _apiBaseUrl = 'http://127.0.0.1:8000/api';
 
 // --- MODELO HORTA ---
 class Horta {
@@ -15,12 +20,13 @@ class Horta {
     this.areaTotal,
   });
 
+  // Construtor factory para criar Horta a partir de um JSON
   factory Horta.fromJson(Map<String, dynamic> json) {
     return Horta(
       id: json['id'],
       nome: json['nome'],
       localizacao: json['localizacao'],
-      areaTotal: (json['area_total'] as num?)?.toDouble(), 
+      areaTotal: (json['area_total'] as num?)?.toDouble(),
     );
   }
 }
@@ -47,6 +53,7 @@ class Hortalica {
     required this.areaModulo,
   });
 
+  // Getter calculado (propriedade virtual)
   int get cicloTotal => cicloDesenvolvimento + cicloColheita + cicloLimpeza;
 
   factory Hortalica.fromJson(Map<String, dynamic> json) {
@@ -85,19 +92,14 @@ class Cultivo {
     return Cultivo(
       id: json['id'],
       hortaId: json['horta'],
-      hortalicaId: json['hortaliça'],
+      // ↓↓ CORREÇÃO CRÍTICA FEITA AQUI ↓↓
+      hortalicaId: json['hortalica'], // Estava 'hortaliça'
       dataInicio: json['data_inicio'],
-      producaoSemanalDesejada: (json['producao_semanal_desejada'] as num).toDouble(),
+      producaoSemanalDesejada: (json['producao_semanal_desejada'] as num)
+          .toDouble(),
       numModulos: json['num_modulos'],
     );
   }
-}
-
-// Classe de "ViewModel" para combinar os dados
-class CultivoDetalhado {
-  final Cultivo cultivo;
-  final Hortalica hortalica;
-  CultivoDetalhado({required this.cultivo, required this.hortalica});
 }
 
 // --- MODELO ATIVIDADE (Calendário) ---
@@ -124,30 +126,40 @@ class AtividadeCalendario {
   }
 }
 
+// --- Classe de "ViewModel" ---
+// Usada na horta_detalhe_page.dart para combinar dados de duas APIs
+class CultivoDetalhado {
+  final Cultivo cultivo;
+  final Hortalica hortalica;
+  CultivoDetalhado({required this.cultivo, required this.hortalica});
+}
+
 // --- FUNÇÕES GLOBAIS DE API ---
-// (Movendo as funções de 'fetch' para cá)
 
 // Busca Hortas
 Future<List<Horta>> fetchHortas() async {
-  final url = Uri.parse('http://127.0.0.1:8000/api/hortas/');
+  final url = Uri.parse('$_apiBaseUrl/hortas/');
   try {
-    final response = await http.get(url);
+    final response = await http.get(url).timeout(const Duration(seconds: 10));
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       return data.map((json) => Horta.fromJson(json)).toList();
     } else {
-      throw Exception('Falha ao carregar hortas (Status: ${response.statusCode})');
+      throw Exception(
+        'Falha ao carregar hortas (Status: ${response.statusCode})',
+      );
     }
   } catch (e) {
+    // Retorna o erro para o FutureBuilder
     throw Exception('Erro de rede: $e');
   }
 }
 
 // Busca Hortalicas (Modelos de Cultivo)
 Future<List<Hortalica>> fetchHortalicas() async {
-  final url = Uri.parse('http://127.0.0.1:8000/api/hortalicas/');
+  final url = Uri.parse('$_apiBaseUrl/hortalicas/');
   try {
-    final response = await http.get(url);
+    final response = await http.get(url).timeout(const Duration(seconds: 10));
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       return data.map((json) => Hortalica.fromJson(json)).toList();
@@ -159,16 +171,18 @@ Future<List<Hortalica>> fetchHortalicas() async {
   }
 }
 
-// Busca Cultivos
+// Busca Cultivos (filtrado pela Horta)
 Future<List<Cultivo>> fetchCultivos(int hortaId) async {
-  final url = Uri.parse('http://127.0.0.1:8000/api/cultivos/');
+  // A API lista todos os cultivos, então filtramos no front-end.
+  // O ideal (pós-MVP) seria a API suportar /api/hortas/<id>/cultivos/
+  final url = Uri.parse('$_apiBaseUrl/cultivos/');
   try {
-    final response = await http.get(url);
+    final response = await http.get(url).timeout(const Duration(seconds: 10));
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       return data
           .map((json) => Cultivo.fromJson(json))
-          .where((cultivo) => cultivo.hortaId == hortaId)
+          .where((cultivo) => cultivo.hortaId == hortaId) // Filtra pela hortaId
           .toList();
     } else {
       throw Exception('Falha ao carregar cultivos');
@@ -180,9 +194,9 @@ Future<List<Cultivo>> fetchCultivos(int hortaId) async {
 
 // Busca Calendário
 Future<List<AtividadeCalendario>> fetchCalendario(int cultivoId) async {
-  final url = Uri.parse('http://127.0.0.1:8000/api/cultivos/$cultivoId/calendario/');
+  final url = Uri.parse('$_apiBaseUrl/cultivos/$cultivoId/calendario/');
   try {
-    final response = await http.get(url);
+    final response = await http.get(url).timeout(const Duration(seconds: 10));
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       return data.map((json) => AtividadeCalendario.fromJson(json)).toList();

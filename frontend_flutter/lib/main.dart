@@ -1,9 +1,13 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'horta_detalhe_page.dart'; 
+
+// Telas
+import 'splash_screen.dart';
 import 'add_horta_page.dart';
-import 'splash_screen.dart'; 
-import 'models.dart'; // <-- Importa o novo arquivo de modelos
+import 'horta_detalhe_page.dart';
+
+// Modelos e Funções de API
+import 'models.dart';
 
 // --- APP PRINCIPAL ---
 void main() {
@@ -17,12 +21,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Horta Fácil',
-      debugShowCheckedModeBanner: false, 
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.green,
-        scaffoldBackgroundColor: const Color(0xFFF5F5F5), 
+        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF34495E), 
+          backgroundColor: Color(0xFF34495E), // Um azul-escuro
           foregroundColor: Colors.white,
           elevation: 0,
         ),
@@ -34,7 +38,8 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const SplashScreen(), 
+      // A tela inicial é a SplashScreen
+      home: const SplashScreen(),
     );
   }
 }
@@ -48,14 +53,16 @@ class HortaListPage extends StatefulWidget {
 }
 
 class _HortaListPageState extends State<HortaListPage> {
+  // O 'Future' armazena o estado da chamada de API
   late Future<List<Horta>> _hortasFuture;
 
   @override
   void initState() {
     super.initState();
-    _hortasFuture = fetchHortas(); // Busca os dados
+    _hortasFuture = fetchHortas(); // Busca os dados na inicialização
   }
 
+  // Permite que o FAB atualize a lista após a criação de uma nova Horta
   void _refreshHortas() {
     setState(() {
       _hortasFuture = fetchHortas();
@@ -74,53 +81,67 @@ class _HortaListPageState extends State<HortaListPage> {
               accountEmail: Text("samuel@email.com"),
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.green,
-                child: Text("S", style: TextStyle(fontSize: 40.0, color: Colors.white)),
+                child: Text(
+                  "S",
+                  style: TextStyle(fontSize: 40.0, color: Colors.white),
+                ),
               ),
-              decoration: BoxDecoration(
-                color: Color(0xFF34495E),
-              ),
+              decoration: BoxDecoration(color: Color(0xFF34495E)),
             ),
             ListTile(
               leading: const Icon(Icons.home),
               title: const Text('Minhas Hortas'),
-              onTap: () => Navigator.pop(context),
+              onTap: () => Navigator.pop(context), // Fecha o Drawer
             ),
             // TODO: Criar a tela de Modelos (Hortalicas)
           ],
         ),
       ),
-      appBar: AppBar(
-        title: const Text("Minhas Hortas"),
-      ),
+      appBar: AppBar(title: const Text("Minhas Hortas")),
       body: FutureBuilder<List<Horta>>(
-        future: _hortasFuture, 
+        future: _hortasFuture,
         builder: (context, snapshot) {
+          // 1. Estado de Carregamento
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } 
+          }
+          // 2. Estado de Erro
           else if (snapshot.hasError) {
             return Center(child: SelectableText('Erro: ${snapshot.error}'));
-          } 
+          }
+          // 3. Estado de Sucesso (com dados)
           else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             final List<Horta> hortas = snapshot.data!;
-            
+
             return ListView.builder(
-              padding: const EdgeInsets.only(top: 8, bottom: 80), 
+              padding: const EdgeInsets.only(top: 8, bottom: 80),
               itemCount: hortas.length,
               itemBuilder: (context, index) {
                 final horta = hortas[index];
                 return Card(
                   child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 16,
+                    ),
                     title: Text(
                       horta.nome,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     subtitle: Padding(
                       padding: const EdgeInsets.only(top: 4.0),
-                      child: Text(horta.localizacao ?? 'Localização não informada'),
+                      child: Text(
+                        horta.localizacao ?? 'Localização não informada',
+                      ),
                     ),
-                    trailing: const Icon(Icons.chevron_right, color: Colors.green, size: 30),
+                    trailing: const Icon(
+                      Icons.chevron_right,
+                      color: Colors.green,
+                      size: 30,
+                    ),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -133,7 +154,8 @@ class _HortaListPageState extends State<HortaListPage> {
                 );
               },
             );
-          } 
+          }
+          // 4. Estado de Sucesso (sem dados)
           else {
             return const Center(child: Text('Nenhuma horta cadastrada.'));
           }
@@ -141,10 +163,12 @@ class _HortaListPageState extends State<HortaListPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          // Navega para a tela AddHortaPage
           final bool? hortaFoiCriada = await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const AddHortaPage()),
           );
+          // Se a tela de AddHortaPage retornou 'true', atualiza a lista
           if (hortaFoiCriada == true) {
             _refreshHortas();
           }

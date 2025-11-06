@@ -21,43 +21,50 @@ class _AddHortaPageState extends State<AddHortaPage> {
 
   // Função para fazer o POST (Criar)
   Future<void> _salvarHorta() async {
+    // Validação simples
     if (_nomeController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('O nome é obrigatório.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('O nome é obrigatório.')));
       return;
     }
-    
-    setState(() { _isLoading = true; });
+
+    setState(() {
+      _isLoading = true;
+    });
 
     final url = Uri.parse('http://127.0.0.1:8000/api/hortas/');
-    
+
     try {
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
-          // TODO: Adicionar autenticação (ex: Bearer token) se necessário
+          // TODO: Adicionar autenticação (ex: Bearer token) se o backend exigir
         },
         body: jsonEncode({
           'nome': _nomeController.text,
           'localizacao': _localizacaoController.text,
-          'area_total': _areaTotalController.text.isNotEmpty 
-              ? double.tryParse(_areaTotalController.text) 
+          'area_total': _areaTotalController.text.isNotEmpty
+              ? double.tryParse(_areaTotalController.text)
               : null,
           // NOTA: O 'responsavel' é definido automaticamente no backend
         }),
       );
 
-      setState(() { _isLoading = false; });
+      setState(() {
+        _isLoading = false;
+      });
 
-      if (response.statusCode == 201) { // 201 = Created
+      if (response.statusCode == 201) {
+        // 201 = Created
         // Sucesso!
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Horta criada com sucesso!')),
         );
         // Volta para a tela anterior (HortaListPage) e retorna 'true'
-        Navigator.pop(context, true); 
+        // para que a HortaListPage possa atualizar a lista
+        Navigator.pop(context, true);
       } else {
         // Erro do servidor
         ScaffoldMessenger.of(context).showSnackBar(
@@ -66,16 +73,18 @@ class _AddHortaPageState extends State<AddHortaPage> {
       }
     } catch (e) {
       // Erro de rede
-      setState(() { _isLoading = false; });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro de rede: $e')),
-      );
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro de rede: $e')));
     }
   }
 
   @override
   void dispose() {
-    // Limpa os controladores quando a tela é fechada
+    // Limpa os controladores quando a tela é fechada para liberar memória
     _nomeController.dispose();
     _localizacaoController.dispose();
     _areaTotalController.dispose();
@@ -85,14 +94,13 @@ class _AddHortaPageState extends State<AddHortaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Adicionar Nova Horta'),
-      ),
+      appBar: AppBar(title: const Text('Adicionar Nova Horta')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: ListView( // Usamos ListView para evitar overflow
+        child: ListView(
+          // Usamos ListView para evitar overflow do teclado
           children: [
-            // Campo Nome (Tradução do TextInput do AddHortaModal.js)
+            // Campo Nome
             TextFormField(
               controller: _nomeController,
               decoration: const InputDecoration(
@@ -103,7 +111,7 @@ class _AddHortaPageState extends State<AddHortaPage> {
               textCapitalization: TextCapitalization.words,
             ),
             const SizedBox(height: 16),
-            
+
             // Campo Localização
             TextFormField(
               controller: _localizacaoController,
@@ -114,7 +122,7 @@ class _AddHortaPageState extends State<AddHortaPage> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Campo Área Total
             TextFormField(
               controller: _areaTotalController,
@@ -124,11 +132,13 @@ class _AddHortaPageState extends State<AddHortaPage> {
                 border: OutlineInputBorder(),
                 suffixText: 'm²',
               ),
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Botão Salvar
             ElevatedButton(
               onPressed: _isLoading ? null : _salvarHorta,
@@ -139,7 +149,10 @@ class _AddHortaPageState extends State<AddHortaPage> {
               ),
               child: _isLoading
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Salvar Horta', style: TextStyle(color: Colors.white)),
+                  : const Text(
+                      'Salvar Horta',
+                      style: TextStyle(color: Colors.white),
+                    ),
             ),
           ],
         ),
