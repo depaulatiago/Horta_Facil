@@ -32,7 +32,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Fundo mais suave
+      backgroundColor: const Color.fromARGB(
+        255,
+        196,
+        240,
+        167,
+      ), // Fundo mais suave
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -48,14 +53,6 @@ class _SplashScreenState extends State<SplashScreen> {
               valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
             ),
             const SizedBox(height: 16),
-            Text(
-              "Horta Fácil",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade700,
-              ),
-            ),
           ],
         ),
       ),

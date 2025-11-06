@@ -23,10 +23,6 @@ Se você acabou de clonar o projeto, instale as dependências necessárias:
 pip install django djangorestframework django-cors-headers
 
 
-💡 Dica: Se houver um arquivo requirements.txt, utilize:
-
-pip install -r requirements.txt
-
 3️⃣ Criar e Popular o Banco de Dados
 
 Esta é a parte crucial. A ordem deve ser seguida exatamente para evitar erros.

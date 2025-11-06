@@ -20,7 +20,7 @@ class HortaViewSet(viewsets.ModelViewSet):
     serializer_class = HortaSerializer
 
     def perform_create(self, serializer):
-        """ Associa o usuario logado (se houver) ao criar uma Horta. """
+        """ Associates the logged-in user (if any) as the responsible party. """
         if self.request.user.is_authenticated:
             serializer.save(responsavel=self.request.user)
         else:
@@ -46,20 +46,25 @@ class HortalicaViewSet(viewsets.ModelViewSet):
             
             desejada_str = request.query_params.get('desejada', None)
             
-            if desejava_str is None:
+            if desejada_str is None: 
                 return Response(
-                    {"erro": "Parametro 'desejada' (producao desejada) e obrigatorio."}, 
+                    {"error": "Parameter 'desejada' (desired production) is required."}, 
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
             desejada = float(desejada_str)
-            
+            if desejada <= 0:
+                 return Response(
+                    {"error": "Parameter 'desejada' must be greater than 0."}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             produtividade_esperada = hortalica.produtividade_esperada
             area_modulo = hortalica.area_modulo
 
             if produtividade_esperada <= 0:
                 return Response(
-                    {"erro": "Produtividade esperada da hortalica deve ser maior que zero."}, 
+                    {"error": "Hortalica's 'produtividade_esperada' must be greater than zero."}, 
                     status=status.HTTP_400_BAD_REQUEST
                 )
                 
@@ -70,8 +75,14 @@ class HortalicaViewSet(viewsets.ModelViewSet):
                 "num_modulos_calculado": num_modulos_calculado,
                 "area_total_calculada": area_total_calculada
             })
+        
+        except ValueError:
+             return Response(
+                    {"error": "Parameter 'desejada' must be a valid number."}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         except Exception as e:
-            return Response({"erro": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class CultivoViewSet(viewsets.ModelViewSet):
     """
