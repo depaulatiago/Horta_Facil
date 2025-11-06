@@ -19,9 +19,16 @@ class HortaViewSet(viewsets.ModelViewSet):
     queryset = Horta.objects.all()
     serializer_class = HortaSerializer
 
+    # Sobrescreve a criação para associar ao usuário logado (ou Nulo)
     def perform_create(self, serializer):
-        serializer.save(responsavel=self.request.user)
-
+        # MODIFICADO: Verifica se o usuário está logado
+        if self.request.user.is_authenticated:
+            # Se estiver logado (ex: no Admin), associa a ele
+            serializer.save(responsavel=self.request.user)
+        else:
+            # Se for anônimo (o app Flutter), salva como Nulo
+            serializer.save(responsavel=None)
+            
 # --- ViewSet 2: Hortaliça (COM AÇÃO NOVA) ---
 class HortalicaViewSet(viewsets.ModelViewSet):
     queryset = Hortaliça.objects.all()

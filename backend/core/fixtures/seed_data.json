@@ -1,0 +1,126 @@
+[
+{
+  "model": "core.horta",
+  "pk": 1,
+  "fields": {
+    "nome": "Horta Comunitaria",
+    "responsavel": 1,
+    "localizacao": "Vila Ester",
+    "area_total": 150.0,
+    "consumo_agua_estimado": 7.5
+  }
+},
+{
+  "model": "core.horta",
+  "pk": 2,
+  "fields": {
+    "nome": "Horta da Escola",
+    "responsavel": 1,
+    "localizacao": "Vila Mariana",
+    "area_total": 50.0,
+    "consumo_agua_estimado": 2.5
+  }
+},
+{
+  "model": "core.hortaliça",
+  "pk": 1,
+  "fields": {
+    "nome": "Alface Crespa",
+    "tipo_plantio": "mudas",
+    "ciclo_desenvolvimento": 5,
+    "ciclo_colheita": 1,
+    "ciclo_limpeza": 1,
+    "espacamento_linhas": 0.3,
+    "espacamento_plantas": 0.3,
+    "produtividade_esperada": 18.0,
+    "area_modulo": 1.5,
+    "periodicidade": 1
+  }
+},
+{
+  "model": "core.hortaliça",
+  "pk": 2,
+  "fields": {
+    "nome": "Tomate Italiano",
+    "tipo_plantio": "mudas",
+    "ciclo_desenvolvimento": 8,
+    "ciclo_colheita": 6,
+    "ciclo_limpeza": 2,
+    "espacamento_linhas": 0.9,
+    "espacamento_plantas": 0.5,
+    "produtividade_esperada": 25.0,
+    "area_modulo": 25.0,
+    "periodicidade": 2
+  }
+},
+{
+  "model": "core.hortaliça",
+  "pk": 3,
+  "fields": {
+    "nome": "Cenoura Nantes",
+    "tipo_plantio": "direta",
+    "ciclo_desenvolvimento": 10,
+    "ciclo_colheita": 2,
+    "ciclo_limpeza": 1,
+    "espacamento_linhas": 0.25,
+    "espacamento_plantas": 0.08,
+    "produtividade_esperada": 10.0,
+    "area_modulo": 5.0,
+    "periodicidade": 1
+  }
+},
+{
+  "model": "core.cultivo",
+  "pk": 1,
+  "fields": {
+    "horta": 2,
+    "hortaliça": 1,
+    "data_inicio": "2025-11-06",
+    "producao_semanal_desejada": 100.0,
+    "num_modulos": 7,
+    "area_total_hortaliça": 10.5
+  }
+},
+{
+  "model": "core.cultivo",
+  "pk": 2,
+  "fields": {
+    "horta": 2,
+    "hortaliça": 3,
+    "data_inicio": "2024-05-20",
+    "producao_semanal_desejada": 20.0,
+    "num_modulos": 3,
+    "area_total_hortaliça": 15.0
+  }
+},
+{
+  "model": "core.cultivo",
+  "pk": 3,
+  "fields": {
+    "horta": 1,
+    "hortaliça": 2,
+    "data_inicio": "2025-11-01",
+    "producao_semanal_desejada": 50.0,
+    "num_modulos": 3,
+    "area_total_hortaliça": 75.0
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$4B3NpGZN5VzgbsHWlc5Nkl$GP+NHxpbkEHED6mGJejSV0o+2P7qH6PaVqBwsEhoqec=",
+    "last_login": "2025-11-06T09:54:53.407Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@admin.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-11-06T09:53:48.221Z",
+    "groups": [],
+    "user_permissions": []
+  }
+}
+]

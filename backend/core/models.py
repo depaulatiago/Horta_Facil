@@ -3,12 +3,20 @@ from django.contrib.auth.models import User
 
 class Horta(models.Model):
     nome = models.CharField(max_length=100)
-    responsavel = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    # MODIFICADO: Adicionado 'null=True, blank=True' e 'on_delete=models.SET_NULL'
+    responsavel = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, # Se o usuário for deletado, define o responsavel como Nulo
+        null=True, 
+        blank=True
+    )
+    
     localizacao = models.CharField(max_length=150, blank=True, null=True)
     area_total = models.FloatField(help_text="Área total da horta em m²", null=True, blank=True)
     consumo_agua_estimado = models.FloatField(help_text="Consumo estimado de água (m³/mês)", null=True, blank=True)
 
-    def __str__(self):
+    def __str__(self): # Corrigido de _str_ para __str__ (dois underscores)
         return self.nome
 
 
