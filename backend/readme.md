@@ -1,109 +1,87 @@
 📚 README - Backend Django (Horta Fácil API)
-Este documento contém as instruções atualizadas para configurar, rodar e gerenciar o Backend Django, que serve a API RESTful (DRF) para o aplicativo Flutter [cite: 📚 README - Backend Django (Horta Fácil API)].
 
-🚀 Rotina de Setup e Inicialização (O "Golden State")
+Este documento contém as instruções atualizadas para configurar, rodar e gerenciar o Backend Django, que serve a API RESTful (DRF) para o aplicativo Flutter.
+
+🚀 Rotina de Setup e Inicialização ("Golden State")
 
 Esta é a rotina completa para criar o ambiente do zero e popular o banco de dados com os dados de demonstração.
 
-1. Ativar o Ambiente Virtual (Venv)
+1️⃣ Ativar o Ambiente Virtual (Venv)
 
 Garanta que você está na pasta backend/.
 
 # Se for a primeira vez no PowerShell, talvez precise permitir scripts:
-# Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
 
 # Ative o venv
 .\venv\Scripts\activate
 
+2️⃣ Instalar Dependências da API
 
-2. Instalar Dependências da API
+Se você acabou de clonar o projeto, instale as dependências necessárias:
 
-Se você acabou de clonar o projeto, instale as dependências.
-
-# Instale os pacotes necessários:
 pip install django djangorestframework django-cors-headers
 
 
-(Se você tiver um requirements.txt, use pip install -r requirements.txt)
+💡 Dica: Se houver um arquivo requirements.txt, utilize:
 
-3. Criar e Popular o Banco de Dados
+pip install -r requirements.txt
+
+3️⃣ Criar e Popular o Banco de Dados
 
 Esta é a parte crucial. A ordem deve ser seguida exatamente para evitar erros.
 
 # (Opcional) Se já existir um 'db.sqlite3' com erro, delete-o primeiro:
-# del db.sqlite3
+del db.sqlite3
 
-# 1. CRIE AS TABELAS no banco de dados
-# Este comando lê os arquivos em 'core/migrations/'
+🧱 1. Criar as Tabelas no Banco de Dados
+
+Este comando lê os arquivos em core/migrations/.
+
 python manage.py migrate
 
-# 2. POPULE AS TABELAS (somente após o migrate)
-# Carrega os dados de 'core/fixtures/seed_data.json'
+🌱 2. Popular as Tabelas
+
+Somente após o migrate, carregue os dados de demonstração do arquivo core/fixtures/seed_data.json.
+
 python manage.py loaddata core/fixtures/seed_data.json
 
+4️⃣ Rodar o Servidor
 
-4. Rodar o Servidor
+Com o ambiente virtual ativo:
 
-# Com o (venv) ativo:
 python manage.py runserver
 
 
-O servidor estará disponível em http://127.0.0.1:8000/ [cite: 4. Rodar o Servidor].
+O servidor estará disponível em:
+👉 http://127.0.0.1:8000/
 
 🔧 Acesso e Estrutura
+1️⃣ Acesso ao Django Admin (CRUD Completo)
 
-1. Acesso ao Django Admin (CRUD Completo)
+O painel administrativo permite verificar e alterar todos os dados do sistema.
 
-O painel administrativo é onde você pode verificar e alterar todos os dados [cite: 1. Acesso ao Django Admin (CRUD Completo)].
+URL: http://127.0.0.1:8000/admin/
 
-URL: http://127.0.0.1:8000/admin/ [cite: 1. Acesso ao Django Admin (CRUD Completo)]
+Usuário: admin
 
-Usuário: admin [cite: 1. Acesso ao Django Admin (CRUD Completo)]
+Senha: 123
 
-Senha: 123 [cite: 1. Acesso ao Django Admin (CRUD Completo)]
+2️⃣ Modelos Principais (5 Entidades)
+Modelo	Função no Sistema
+Horta	O projeto ou área física de cultivo.
+Hortalica	O modelo técnico do cultivo (Ciclos, Espaçamentos, etc.).
+Cultivo	O relacionamento entre Horta e Hortalica (a plantação ativa).
+Colheita	Registro de quanto foi colhido.
+Relatorio	Demonstração da lógica de Eficiência (Total Colhido / Total Planejado).
+3️⃣ Endpoints da API (Lógica de Negócios)
 
-2. Modelos Principais (5 Entidades)
+O aplicativo Flutter consome as APIs no prefixo /api/.
 
-Modelo
+Endpoint	Lógica de Negócio
+/api/hortas/	Lista e criação de Hortas.
+/api/cultivos/<id>/calendario/	Calcula e retorna o Calendário de Atividades.
+/api/hortalicas/<id>/calcular-dimensionamento/	Calcula Módulos e Área Necessária.
 
-Função no Sistema [cite: 2. Modelos Principais (5 Entidades)]
-
-Horta
-
-O projeto ou área física de cultivo.
-
-Hortalica
-
-O modelo técnico do cultivo (Ciclos, Espaçamentos, etc.).
-
-Cultivo
-
-O relacionamento entre Horta e Hortalica (a plantação ativa).
-
-Colheita
-
-Registro de quanto foi colhido.
-
-Relatorio
-
-Demonstração da lógica de Eficiência (Total Colhido / Total Planejado).
-
-3. Endpoints da API (Lógica de Negócios)
-
-O aplicativo Flutter consome as APIs no prefixo /api/ [cite: 3. Endpoints da API (Lógica de Negócios)].
-
-Endpoint
-
-Lógica de Negócio [cite: 3. Endpoints da API (Lógica de Negócios)]
-
-/api/hortas/
-
-Lista/Criação de Hortas.
-
-/api/cultivos/<id>/calendario/
-
-Calcula e retorna o Calendário de Atividades.
-
-/api/hortalicas/<id>/calcular-dimensionamento/
-
-Calcula Módulos e Área Necessária.
+✅ Pronto!
+Seu ambiente está configurado, a API está rodando e o painel administrativo pode ser acessado para gerenciar os dados.
