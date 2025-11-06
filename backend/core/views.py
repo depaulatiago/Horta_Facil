@@ -1,5 +1,5 @@
-from rest_framework import viewsets
-from .models import Horta, Hortaliça, Cultivo, Colheita, Relatorio
+from rest_framework import viewsets, status
+from .models import Horta, Hortalica, Cultivo, Colheita, Relatorio
 from .serializers import (
     HortaSerializer, 
     HortalicaSerializer, 
@@ -7,92 +7,90 @@ from .serializers import (
     ColheitaSerializer, 
     RelatorioSerializer
 )
-
-# Imports ADICIONADOS para a Lógica de Negócios
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from datetime import timedelta
 import math
 
-# --- ViewSet 1: Horta ---
 class HortaViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing Hortas.
+    """
     queryset = Horta.objects.all()
     serializer_class = HortaSerializer
 
-    # Sobrescreve a criação para associar ao usuário logado (ou Nulo)
     def perform_create(self, serializer):
-        # MODIFICADO: Verifica se o usuário está logado
+        """ Associa o usuario logado (se houver) ao criar uma Horta. """
         if self.request.user.is_authenticated:
-            # Se estiver logado (ex: no Admin), associa a ele
             serializer.save(responsavel=self.request.user)
         else:
-            # Se for anônimo (o app Flutter), salva como Nulo
             serializer.save(responsavel=None)
             
-# --- ViewSet 2: Hortaliça (COM AÇÃO NOVA) ---
 class HortalicaViewSet(viewsets.ModelViewSet):
-    queryset = Hortaliça.objects.all()
+    """
+    API endpoint for managing Hortalicas (vegetable templates).
+    """
+    queryset = Hortalica.objects.all()
     serializer_class = HortalicaSerializer
 
-    # AÇÃO DE DIMENSIONAMENTO (Fase 3)
     @action(detail=True, methods=['get'], url_path='calcular-dimensionamento')
     def calcular_dimensionamento(self, request, pk=None):
         """
-        Calcula o número de módulos e a área total
-        baseado na produção semanal desejada.
+        Calculates the number of modules and total area
+        based on a desired weekly production.
         
-        Exemplo de URL: /api/hortalicas/1/calcular-dimensionamento/?desejada=100
+        Example URL: /api/hortalicas/1/calcular-dimensionamento/?desejada=100
         """
         try:
-            hortalica = self.get_object() # Pega a hortaliça (ex: Alface)
+            hortalica = self.get_object()
             
-            # Pega o parâmetro 'desejada' da URL
             desejada_str = request.query_params.get('desejada', None)
             
-            if desejada_str is None:
-                return Response({"erro": "Parâmetro 'desejada' (produção desejada) é obrigatório."}, status=400)
+            if desejava_str is None:
+                return Response(
+                    {"erro": "Parametro 'desejada' (producao desejada) e obrigatorio."}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             desejada = float(desejada_str)
             
-            # Pega os dados técnicos do modelo
             produtividade_esperada = hortalica.produtividade_esperada
             area_modulo = hortalica.area_modulo
 
-            # LÓGICA DE CÁLCULO (Exemplo simples)
             if produtividade_esperada <= 0:
-                return Response({"erro": "Produtividade esperada da hortaliça deve ser maior que zero."}, status=400)
+                return Response(
+                    {"erro": "Produtividade esperada da hortalica deve ser maior que zero."}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
                 
             num_modulos_calculado = math.ceil(desejada / produtividade_esperada)
             area_total_calculada = num_modulos_calculado * area_modulo
 
-            # Retorna o JSON para o Flutter
             return Response({
                 "num_modulos_calculado": num_modulos_calculado,
                 "area_total_calculada": area_total_calculada
             })
-
         except Exception as e:
-            return Response({"erro": str(e)}, status=500)
+            return Response({"erro": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-# --- ViewSet 3: Cultivo (COM AÇÃO NOVA) ---
 class CultivoViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing Cultivos (active cultivations).
+    """
     queryset = Cultivo.objects.all()
     serializer_class = CultivoSerializer
 
-    # AÇÃO DE CALENDÁRIO (Fase 3)
     @action(detail=True, methods=['get'], url_path='calendario')
     def calendario(self, request, pk=None):
         """
-        Gera o cronograma de atividades (plantio, colheita, limpeza)
-        para cada módulo de um cultivo.
+        Generates the activity schedule (planting, harvest, cleanup)
+        for each module of a cultivation.
         
-        Exemplo de URL: /api/cultivos/1/calendario/
+        Example URL: /api/cultivos/1/calendario/
         """
-        cultivo = self.get_object() # Pega o cultivo (ex: Alface na Horta 1)
-        hortalica = cultivo.hortaliça
+        cultivo = self.get_object()
+        hortalica = cultivo.hortalica
         
-        # Pega os dados de ciclo do modelo Hortaliça
         data_inicio = cultivo.data_inicio
         num_modulos = cultivo.num_modulos
         periodicidade_plantio = hortalica.periodicidade
@@ -102,13 +100,9 @@ class CultivoViewSet(viewsets.ModelViewSet):
 
         atividades = []
 
-        # LÓGICA DE CÁLCULO DO CALENDÁRIO
-        # Itera por cada módulo definido no Cultivo
         for i in range(num_modulos):
-            # Calcula o início do plantio para este módulo
             inicio_plantio_modulo = data_inicio + timedelta(weeks=(i * periodicidade_plantio))
             
-            # Calcula as datas das atividades
             inicio_colheita = inicio_plantio_modulo + timedelta(weeks=ciclo_dev)
             fim_colheita = inicio_colheita + timedelta(weeks=ciclo_col)
             inicio_limpeza = fim_colheita
@@ -122,15 +116,18 @@ class CultivoViewSet(viewsets.ModelViewSet):
                 "data_proximo_plantio_disponivel": fim_limpeza,
             })
 
-        # Retorna o JSON (lista de atividades) para o Flutter
         return Response(atividades)
 
-# --- ViewSet 4: Colheita ---
 class ColheitaViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing Colheitas (harvest logs).
+    """
     queryset = Colheita.objects.all()
     serializer_class = ColheitaSerializer
 
-# --- ViewSet 5: Relatorio ---
 class RelatorioViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing Relatorios (efficiency reports).
+    """
     queryset = Relatorio.objects.all()
     serializer_class = RelatorioSerializer

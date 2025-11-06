@@ -127,6 +127,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-
 # Para desenvolvimento (teste local), a forma mais fácil é permitir todas as origens:
 CORS_ALLOW_ALL_ORIGINS = True

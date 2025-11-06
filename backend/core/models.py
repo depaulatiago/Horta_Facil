@@ -2,25 +2,27 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Horta(models.Model):
+    """
+    Represents a physical garden/plot (Horta).
+    """
     nome = models.CharField(max_length=100)
-    
-    # MODIFICADO: Adicionado 'null=True, blank=True' e 'on_delete=models.SET_NULL'
     responsavel = models.ForeignKey(
         User, 
-        on_delete=models.SET_NULL, # Se o usuário for deletado, define o responsavel como Nulo
+        on_delete=models.SET_NULL,
         null=True, 
         blank=True
     )
-    
     localizacao = models.CharField(max_length=150, blank=True, null=True)
-    area_total = models.FloatField(help_text="Área total da horta em m²", null=True, blank=True)
-    consumo_agua_estimado = models.FloatField(help_text="Consumo estimado de água (m³/mês)", null=True, blank=True)
+    area_total = models.FloatField(help_text="Area total da horta em m2", null=True, blank=True)
+    consumo_agua_estimado = models.FloatField(help_text="Consumo estimado de agua (m3/mes)", null=True, blank=True)
 
-    def __str__(self): # Corrigido de _str_ para __str__ (dois underscores)
+    def __str__(self):
         return self.nome
 
-
-class Hortaliça(models.Model):
+class Hortalica(models.Model):
+    """
+    Template for a vegetable (Hortalica), defining its technical parameters.
+    """
     TIPO_PLANTIO = [
         ("mudas", "Mudas"),
         ("direta", "Semeadura Direta"),
@@ -30,59 +32,64 @@ class Hortaliça(models.Model):
     ciclo_desenvolvimento = models.IntegerField(help_text="Semanas de desenvolvimento", default=0) 
     ciclo_colheita = models.IntegerField(help_text="Semanas de colheita")
     ciclo_limpeza = models.IntegerField(help_text="Semanas para limpeza/preparo")
-    espacamento_linhas = models.FloatField(help_text="Espaçamento entre linhas (m)")
-    espacamento_plantas = models.FloatField(help_text="Espaçamento entre plantas (m)")
-    
-    # PADRÃO ADICIONADO
-    produtividade_esperada = models.FloatField(help_text="Produtividade esperada por módulo (kg ou unidades)", default=0)
-    
-    area_modulo = models.FloatField(help_text="Área de cada módulo (m²)")
+    espacamento_linhas = models.FloatField(help_text="Espacamento entre linhas (m)")
+    espacamento_plantas = models.FloatField(help_text="Espacamento entre plantas (m)")
+    produtividade_esperada = models.FloatField(help_text="Produtividade esperada por modulo (kg ou unidades)", default=0)
+    area_modulo = models.FloatField(help_text="Area de cada modulo (m2)")
     periodicidade = models.IntegerField(help_text="Intervalo entre plantios (semanas)")
 
     def __str__(self):
         return self.nome
 
-
 class Cultivo(models.Model):
+    """
+    Links a Horta to a Hortalica. This is an active cultivation.
+    """
     horta = models.ForeignKey(Horta, on_delete=models.CASCADE)
-    hortaliça = models.ForeignKey(Hortaliça, on_delete=models.CASCADE)
+    hortalica = models.ForeignKey(Hortalica, on_delete=models.CASCADE)
     data_inicio = models.DateField()
-    producao_semanal_desejada = models.FloatField(help_text="Produção semanal desejada (kg ou unidades)")
-    num_modulos = models.IntegerField(help_text="Número de módulos de cultivo")
-    area_total_hortaliça = models.FloatField(help_text="Área total ocupada por essa hortaliça (m²)", null=True, blank=True)
+    producao_semanal_desejada = models.FloatField(help_text="Producao semanal desejada (kg ou unidades)")
+    num_modulos = models.IntegerField(help_text="Numero de modulos de cultivo")
+    area_total_hortalica = models.FloatField(help_text="Area total ocupada por esta hortalica (m2)", null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if not self.area_total_hortaliça:
-            self.area_total_hortaliça = self.num_modulos * self.hortaliça.area_modulo
+        """
+        Auto-calculates total area on save.
+        """
+        if not self.area_total_hortalica:
+            self.area_total_hortalica = self.num_modulos * self.hortalica.area_modulo
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.hortaliça.nome} ({self.horta.nome})"
-
+        return f"{self.hortalica.nome} ({self.horta.nome})"
 
 class Colheita(models.Model):
+    """
+    Log entry for a specific harvest event (Colheita).
+    """
     cultivo = models.ForeignKey(Cultivo, on_delete=models.CASCADE, null=True) 
     data = models.DateField()
     quantidade_colhida = models.FloatField(help_text="Quantidade colhida (kg ou unidades)", default=0) 
 
     def __str__(self):
-        # Adicionado 'if self.cultivo' para evitar erro se for nulo
         if self.cultivo:
-            return f"{self.cultivo.hortaliça.nome} - {self.data}"
+            return f"{self.cultivo.hortalica.nome} - {self.data}"
         return f"Colheita em {self.data}"
 
-
 class Relatorio(models.Model):
+    """
+    Consolidated report (Relatorio) for a Horta's efficiency.
+    """
     horta = models.ForeignKey(Horta, on_delete=models.CASCADE)
     data = models.DateField(auto_now_add=True)
-    total_produzido_planejado = models.FloatField(help_text="Produção total planejada (kg ou unidades)")
-    
-    # PADRÃO ADICIONADO
-    total_colhido_real = models.FloatField(help_text="Produção total colhida (kg ou unidades)", default=0)
-    
-    eficiencia = models.FloatField(help_text="Eficiência de produção (%)", null=True, blank=True)
+    total_produzido_planejado = models.FloatField(help_text="Producao total planejada (kg ou unidades)")
+    total_colhido_real = models.FloatField(help_text="Producao total colhida (kg ou unidades)", default=0)
+    eficiencia = models.FloatField(help_text="Eficiencia de producao (%)", null=True, blank=True)
 
     def save(self, *args, **kwargs):
+        """
+        Auto-calculates efficiency on save.
+        """
         if self.total_produzido_planejado and self.total_produzido_planejado > 0:
             self.eficiencia = (self.total_colhido_real / self.total_produzido_planejado) * 100
         else:
@@ -90,4 +97,4 @@ class Relatorio(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Relatório {self.horta.nome} - {self.data}"
+        return f"Relatorio {self.horta.nome} - {self.data}"

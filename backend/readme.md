@@ -1,101 +1,100 @@
 📚 README - Backend Django (Horta Fácil API)
+Este documento contém as instruções atualizadas para configurar, rodar e gerenciar o Backend Django, que serve a API RESTful (DRF) para o aplicativo Flutter [cite: 📚 README - Backend Django (Horta Fácil API)].
 
-Este documento contém as instruções atualizadas para configurar, rodar e gerenciar o Backend Django, que serve a API RESTful (DRF) para o aplicativo Flutter.
+🚀 Rotina de Setup e Inicialização (O "Golden State")
 
-🚀 Rotina de Setup e Inicialização (Recomendada)
-
-Esta rotina garante que o ambiente virtual esteja ativo, o banco de dados seja criado do zero e populado com os dados de demonstração (Hortas, Cultivos e Usuário Admin).
+Esta é a rotina completa para criar o ambiente do zero e popular o banco de dados com os dados de demonstração.
 
 1. Ativar o Ambiente Virtual (Venv)
 
 Garanta que você está na pasta backend/.
 
-# Permite a execução de scripts no PowerShell (se necessário)
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+# Se for a primeira vez no PowerShell, talvez precise permitir scripts:
+# Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
 
-# Ativa o venv
+# Ative o venv
 .\venv\Scripts\activate
 
 
 2. Instalar Dependências da API
 
-Este passo é feito apenas na primeira vez ou se você adicionar novos pacotes.
+Se você acabou de clonar o projeto, instale as dependências.
 
-# Com o (venv) ativo, instale os pacotes necessários:
+# Instale os pacotes necessários:
 pip install django djangorestframework django-cors-headers
-# (Se houver um requirements.txt, use: pip install -r requirements.txt)
 
 
-3. Reset e População de Dados (O Golden State)
+(Se você tiver um requirements.txt, use pip install -r requirements.txt)
 
-Esta rotina garante que o usuário admin e todos os dados de Hortas/Cultivos estejam no banco.
+3. Criar e Popular o Banco de Dados
 
-# (venv) PS C:\...\backend>
+Esta é a parte crucial. A ordem deve ser seguida exatamente para evitar erros.
 
-# 1. DELETE o banco de dados antigo (para começar do zero)
-del db.sqlite3
+# (Opcional) Se já existir um 'db.sqlite3' com erro, delete-o primeiro:
+# del db.sqlite3
 
-# 2. Crie as tabelas vazias
+# 1. CRIE AS TABELAS no banco de dados
+# Este comando lê os arquivos em 'core/migrations/'
 python manage.py migrate
 
-# 3. Carregue os dados de demonstração (Hortaliças, Hortas, Cultivos e Usuário Admin)
-# O arquivo 'seed_data.json' contém o estado perfeito para demonstração.
-python manage.py loaddata seed_data.json
+# 2. POPULE AS TABELAS (somente após o migrate)
+# Carrega os dados de 'core/fixtures/seed_data.json'
+python manage.py loaddata core/fixtures/seed_data.json
 
 
 4. Rodar o Servidor
 
-# (venv) PS C:\...\backend>
+# Com o (venv) ativo:
 python manage.py runserver
 
 
-Servidor: http://127.0.0.1:8000/
+O servidor estará disponível em http://127.0.0.1:8000/ [cite: 4. Rodar o Servidor].
 
 🔧 Acesso e Estrutura
 
 1. Acesso ao Django Admin (CRUD Completo)
 
-O painel administrativo é onde você pode verificar e alterar todos os dados.
+O painel administrativo é onde você pode verificar e alterar todos os dados [cite: 1. Acesso ao Django Admin (CRUD Completo)].
 
-URL: http://127.0.0.1:8000/admin/
+URL: http://127.0.0.1:8000/admin/ [cite: 1. Acesso ao Django Admin (CRUD Completo)]
 
-Usuário: admin
+Usuário: admin [cite: 1. Acesso ao Django Admin (CRUD Completo)]
 
-Senha: 123
+Senha: 123 [cite: 1. Acesso ao Django Admin (CRUD Completo)]
 
 2. Modelos Principais (5 Entidades)
 
 Modelo
 
-Função no Sistema
+Função no Sistema [cite: 2. Modelos Principais (5 Entidades)]
 
 Horta
 
 O projeto ou área física de cultivo.
 
-Hortaliça
+Hortalica
 
-O modelo técnico do cultivo (Ciclos, Espaçamentos, Produtividade).
+O modelo técnico do cultivo (Ciclos, Espaçamentos, etc.).
 
 Cultivo
 
-O relacionamento entre Horta e Hortaliça (a plantação ativa). Antiga Produção.
+O relacionamento entre Horta e Hortalica (a plantação ativa).
 
 Colheita
 
 Registro de quanto foi colhido.
 
-Relatório
+Relatorio
 
 Demonstração da lógica de Eficiência (Total Colhido / Total Planejado).
 
 3. Endpoints da API (Lógica de Negócios)
 
-O aplicativo Flutter consome as APIs no prefixo /api/:
+O aplicativo Flutter consome as APIs no prefixo /api/ [cite: 3. Endpoints da API (Lógica de Negócios)].
 
 Endpoint
 
-Lógica de Negócio
+Lógica de Negócio [cite: 3. Endpoints da API (Lógica de Negócios)]
 
 /api/hortas/
 
@@ -107,4 +106,4 @@ Calcula e retorna o Calendário de Atividades.
 
 /api/hortalicas/<id>/calcular-dimensionamento/
 
-Calcula Módulos e Área Necessária (Lógica da Planilha).
+Calcula Módulos e Área Necessária.

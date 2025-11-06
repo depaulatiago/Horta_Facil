@@ -22,7 +22,7 @@
   }
 },
 {
-  "model": "core.hortaliça",
+  "model": "core.hortalica",
   "pk": 1,
   "fields": {
     "nome": "Alface Crespa",
@@ -38,7 +38,7 @@
   }
 },
 {
-  "model": "core.hortaliça",
+  "model": "core.hortalica",
   "pk": 2,
   "fields": {
     "nome": "Tomate Italiano",
@@ -54,7 +54,7 @@
   }
 },
 {
-  "model": "core.hortaliça",
+  "model": "core.hortalica",
   "pk": 3,
   "fields": {
     "nome": "Cenoura Nantes",
@@ -74,11 +74,11 @@
   "pk": 1,
   "fields": {
     "horta": 2,
-    "hortaliça": 1,
+    "hortalica": 1,
     "data_inicio": "2025-11-06",
     "producao_semanal_desejada": 100.0,
     "num_modulos": 7,
-    "area_total_hortaliça": 10.5
+    "area_total_hortalica": 10.5
   }
 },
 {
@@ -86,11 +86,11 @@
   "pk": 2,
   "fields": {
     "horta": 2,
-    "hortaliça": 3,
+    "hortalica": 3,
     "data_inicio": "2024-05-20",
     "producao_semanal_desejada": 20.0,
     "num_modulos": 3,
-    "area_total_hortaliça": 15.0
+    "area_total_hortalica": 15.0
   }
 },
 {
@@ -98,11 +98,11 @@
   "pk": 3,
   "fields": {
     "horta": 1,
-    "hortaliça": 2,
+    "hortalica": 2,
     "data_inicio": "2025-11-01",
     "producao_semanal_desejada": 50.0,
     "num_modulos": 3,
-    "area_total_hortaliça": 75.0
+    "area_total_hortalica": 75.0
   }
 },
 {
