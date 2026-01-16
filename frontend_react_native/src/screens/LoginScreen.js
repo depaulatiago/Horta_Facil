@@ -11,6 +11,7 @@ import {
     KeyboardAvoidingView,
     Platform 
 } from 'react-native';
+import { AuthService } from '../services/api';
 
 const COLORS = {
     background: '#F4FBF0',
@@ -26,12 +27,23 @@ const LoginScreen = ({ navigation }) => {
     const [senha, setSenha] = useState('');
 
     // 2. Criamos uma função para lidar com o login
-    const handleLogin = () => {
-        // No futuro, aqui você valida o login.
-        // Por agora, apenas navegamos para a tela principal do app.
-        // 'MainApp' é o nome que demos para o nosso conjunto de telas com menu no App.js
-        // Usamos .replace() para que o usuário não consiga usar o botão "voltar" do celular para a tela de login.
-        navigation.replace('MainApp');
+    const [loading, setLoading] = useState(false);
+
+    const handleLogin = async () => {
+        try {
+            setLoading(true);
+            const ok = await AuthService.login(usuario, senha);
+            if (ok) {
+                navigation.replace('MinhasHortas');
+            } else {
+                // fallback: ainda navega, mas ideal é exibir erro
+                navigation.replace('MinhasHortas');
+            }
+        } catch (e) {
+            // TODO: exibir mensagem de erro amigável
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -63,8 +75,8 @@ const LoginScreen = ({ navigation }) => {
                     />
 
                     {/* 3. O botão agora chama a função handleLogin quando pressionado */}
-                    <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                        <Text style={styles.loginButtonText}>ENTRAR</Text>
+                    <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
+                        <Text style={styles.loginButtonText}>{loading ? 'Entrando...' : 'ENTRAR'}</Text>
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>

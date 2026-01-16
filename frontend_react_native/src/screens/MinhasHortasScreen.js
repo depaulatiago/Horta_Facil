@@ -1,5 +1,5 @@
 // /src/screens/MinhasHortasScreen.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, Platform, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -7,6 +7,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import ActionButton from '../components/ActionButton';
 import PlantCard from '../components/PlantCard'; // O card atualizado
 import AddHortaModal from '../components/AddHortaModal'; // O novo modal
+import { HortaService } from '../services/api';
 
 const COLORS = {
     background: '#F4FBF0',
@@ -18,18 +19,47 @@ const MinhasHortasScreen = ({ navigation }) => {
     const [hortas, setHortas] = useState([]);
     // Estado para controlar a visibilidade do modal
     const [isModalVisible, setModalVisible] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const load = async () => {
+            setLoading(true);
+            try {
+                const list = await HortaService.list();
+                setHortas(list.map((h) => ({
+                    id: String(h.id),
+                    nome: h.nome,
+                    qtdPlantas: h.qtd_plantas ?? 0,
+                    status: 'Saudável',
+                    fotoUrl: null,
+                })));
+            } catch (e) {
+                // TODO: exibir erro
+            } finally {
+                setLoading(false);
+            }
+        };
+        load();
+    }, []);
 
     // Função que será chamada pelo modal para salvar a nova horta
-    const handleAddHorta = (novaHortaData) => {
-        const novaHorta = {
-            id: String(hortas.length + 1), // ID simples (melhorar no futuro)
-            nome: novaHortaData.nome,
-            qtdPlantas: 0, // Começa com 0 plantas
-            status: 'Saudável',
-            fotoUrl: null, // Sem foto por enquanto
-        };
-        setHortas([...hortas, novaHorta]); // Adiciona a nova horta à lista
-        setModalVisible(false); // Fecha o modal
+    const handleAddHorta = async (novaHortaData) => {
+        try {
+            const created = await HortaService.create({ nome: novaHortaData.nome });
+            setHortas((prev) => [
+                ...prev,
+                {
+                    id: String(created.id),
+                    nome: created.nome,
+                    qtdPlantas: 0,
+                    status: 'Saudável',
+                    fotoUrl: null,
+                },
+            ]);
+            setModalVisible(false);
+        } catch (e) {
+            // TODO: exibir erro
+        }
     };
 
     return (
@@ -43,7 +73,9 @@ const MinhasHortasScreen = ({ navigation }) => {
             </View>
             
             <View style={styles.container}>
-                {hortas.length === 0 ? (
+                {loading ? (
+                    <Text style={{ textAlign: 'center' }}>Carregando...</Text>
+                ) : hortas.length === 0 ? (
                     // Se não há hortas, mostra o botão para abrir o modal
                     <ActionButton 
                         iconName="add-circle-outline"
