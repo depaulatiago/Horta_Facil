@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "horta-facil-mobile",
-    "slug": "horta-facil-mobile",
+    "name": "frontend_expo_ios",
+    "slug": "frontend_expo_ios",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
