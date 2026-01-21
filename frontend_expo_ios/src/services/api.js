@@ -1,8 +1,8 @@
 // src/services/api.js
 import axios from 'axios';
 
-// URL base da API - altere para o IP do seu servidor quando testar no dispositivo
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+// URL base da API - usa localhost quando rodando localmente
+const API_BASE_URL = 'http://192.168.2.137:8000/api';
 
 // Crie uma instância do axios com configuração padrão
 const api = axios.create({

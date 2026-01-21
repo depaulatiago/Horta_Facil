@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+*.pyc
+__pycache__
+.pytest_cache
+.venv
+venv
+.env
+.env.local
+db.sqlite3
+build/
+dist/
+.next/
+.expo/
