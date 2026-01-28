@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // URL base da API - usa localhost quando rodando localmente
-const API_BASE_URL = 'http://192.168.2.137:8000/api';
+const API_BASE_URL = 'http://localhost:8000/api';
 
 // Crie uma instância do axios com configuração padrão
 const api = axios.create({

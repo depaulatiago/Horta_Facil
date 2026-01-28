@@ -1,96 +1,97 @@
-# Horta Fácil Web
+# Horta Fácil
 
-Projeto de extensão para recriar o software **Horta Fácil** em formato web, baseado no software original para planejamento, dimensionamento e gerenciamento de hortas comerciais, domésticas e comunitárias.
-
----
-
-## Funcionalidades
-
-- Gerenciamento de modelos de cultivo (hortaliças) com dados técnicos (ciclo fenológico, espaçamento, produtividade)
-- Criação e edição de hortas com seleção das hortaliças e definição da produção semanal desejada
-- Cálculo otimizado do dimensionamento da área e módulos de cultivo
-- Geração de calendário de cultivo com atividades semanais para cada módulo
-- Visualização de relatórios e exportação em PDF (futuro)
-- Interface web responsiva e amigável
+Sistema web para planejamento, dimensionamento e gerenciamento de hortas comerciais, domésticas e comunitárias.
 
 ---
 
-## Tecnologias
-
-- **Backend:** Node.js, Express, SQLite  
-- **Frontend:** React, Vite  
-- **Banco de dados:** SQLite  
-- **Controle de versão:** Git/GitHub
-
----
-
-## Como rodar o projeto localmente
+## Como rodar o projeto
 
 ### Requisitos
 
-- Node.js (v16 ou superior recomendado)
-- npm (vem com o Node.js)
+- Python 3.12+
+- Node.js 16+
+- Docker (opcional)
 
-### Passos
+---
 
-1. Clone o repositório:
+## 🚀 Opção 1: Rodar sem Docker (Recomendado para desenvolvimento)
 
-```bash
-git clone https://github.com/seu-usuario/horta-facil-web.git
-cd horta_facil
-````
-
-2. Instale dependências do backend e rode:
+### 1. Backend (Django)
 
 ```bash
+# Entre na pasta do backend
 cd backend
-npm install
-npm run seed    # para criar e popular o banco SQLite
-npm run dev     # para iniciar o backend com nodemon
+
+# Crie e ative o virtual environment
+python3 -m venv venv
+source venv/bin/activate  # No Windows: venv\Scripts\activate
+
+# Instale as dependências
+pip install -r requirements.txt
+
+# Rode as migrations
+python manage.py migrate
+
+# Carregue dados de exemplo (opcional)
+python manage.py loaddata core/fixtures/seed_data.json
+
+# Inicie o servidor
+python manage.py runserver 0.0.0.0:8000
 ```
 
-3. Em outro terminal, instale e rode o frontend:
+Backend rodando em: **http://localhost:8000/api/**
+
+### 2. Frontend (Expo Web)
+
+Em outro terminal:
 
 ```bash
-cd ../frontend
+# Entre na pasta do frontend
+cd frontend_expo_ios
+
+# Instale as dependências
 npm install
-npm run dev
+
+# Inicie o servidor web
+npm start
+
+# Escolha 'w' para rodar no navegador
 ```
 
-4. Acesse no navegador:
-
-* Frontend: `http://localhost:3000` (ou porta que o Vite indicar)
-* Backend: `http://localhost:4000`
+Frontend rodando em: **http://localhost:19006**
 
 ---
 
-## Estrutura do projeto
+## 🐳 Opção 2: Rodar com Docker
 
-```
-horta-facil-web/
-├── backend/         # API e lógica do servidor
-├── frontend/        # Aplicação React
-├── docs/            # Documentação do projeto
-├── scripts/         # Scripts auxiliares (banco, seed)
-├── .gitignore       # Arquivos ignorados pelo Git
-├── README.md        # Este arquivo
-└── LICENSE          # Licença do projeto
+```bash
+# Na raiz do projeto
+docker-compose up
 ```
 
----
+Isso inicia o backend em **http://localhost:8000/api/**
 
-## Como contribuir
+Depois abra outro terminal para o frontend:
 
-1. Faça um fork do projeto
-2. Crie uma branch com sua feature (`git checkout -b minha-feature`)
-3. Faça commits claros e frequentes
-4. Abra um Pull Request explicando as mudanças
-
----
-
-## Licença
-
-Este projeto está licenciado sob a licença MIT — veja o arquivo [LICENSE](LICENSE) para detalhes.
+```bash
+cd frontend_expo_ios
+npm start
+# Escolha 'w' para web
+```
 
 ---
+
+## 📝 Notas importantes
+
+- **Para voltar a ativar o venv** em novos terminais, execute:
+  ```bash
+  source venv/bin/activate  # ou: cd backend && source venv/bin/activate
+  ```
+
+- **Frontend precisa que o backend esteja rodando** para funcionar corretamente
+
+- **Banco de dados**: SQLite (arquivo `db.sqlite3` na pasta `backend/`)
+
+---
+
 Projeto criado como extensão universitária.

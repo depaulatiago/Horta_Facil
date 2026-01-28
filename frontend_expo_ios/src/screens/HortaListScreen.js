@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { fetchHortas } from '../services/api';
 
@@ -44,19 +45,21 @@ const HortaListScreen = ({ navigation }) => {
   const renderHortaItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
+      activeOpacity={0.7}
       onPress={() => navigation.navigate('HortaDetalhe', { horta: item })}
     >
+      <View style={styles.cardIcon}>🌱</View>
       <View style={styles.cardContent}>
         <View style={styles.cardInfo}>
           <Text style={styles.cardTitle}>{item.nome}</Text>
           <Text style={styles.cardSubtitle}>
-            {item.localizacao || 'Localização não informada'}
+            📍 {item.localizacao || 'Localização não informada'}
           </Text>
           {item.area_total && (
-            <Text style={styles.cardArea}>Área: {item.area_total} m²</Text>
+            <Text style={styles.cardArea}>📐 Área: {item.area_total} m²</Text>
           )}
         </View>
-        <Text style={styles.chevron}>›</Text>
+        <Text style={styles.chevron}>→</Text>
       </View>
     </TouchableOpacity>
   );
@@ -83,7 +86,16 @@ const HortaListScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Minhas Hortas</Text>
+        <View style={styles.headerContent}>
+          <Image 
+            source={require('../../assets/logo.png')} 
+            style={styles.headerLogo}
+          />
+          <View style={styles.headerText}>
+            <Text style={styles.headerSubtitle}>Bem-vindo</Text>
+            <Text style={styles.headerTitle}>Minhas Hortas</Text>
+          </View>
+        </View>
       </View>
       
       <FlatList
@@ -91,18 +103,21 @@ const HortaListScreen = ({ navigation }) => {
         renderItem={renderHortaItem}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContent}
+        scrollIndicatorInsets={{ right: 1 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={['#4CAF50']}
+            colors={['#27AE60']}
+            tintColor="#27AE60"
           />
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Nenhuma horta cadastrada.</Text>
+            <Text style={styles.emptyIcon}>🌱</Text>
+            <Text style={styles.emptyText}>Nenhuma horta cadastrada</Text>
             <Text style={styles.emptySubtext}>
-              Toque no botão + para adicionar sua primeira horta
+              Comece a cultivar! Toque no botão + para criar sua primeira horta
             </Text>
           </View>
         }
@@ -111,6 +126,7 @@ const HortaListScreen = ({ navigation }) => {
       <TouchableOpacity
         style={styles.fab}
         onPress={() => navigation.navigate('AddHorta')}
+        activeOpacity={0.8}
       >
         <Text style={styles.fabIcon}>+</Text>
       </TouchableOpacity>
@@ -121,17 +137,45 @@ const HortaListScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#F0F9F7',
   },
   header: {
-    backgroundColor: '#34495E',
-    padding: 16,
-    paddingTop: 50,
+    backgroundColor: '#27AE60',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 30,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: '#27AE60',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerLogo: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
+    marginRight: 16,
+  },
+  headerText: {
+    flex: 1,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#E8F8F5',
+    marginBottom: 4,
+    fontWeight: '500',
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '800',
     color: '#fff',
+    letterSpacing: 0.5,
   },
   centerContainer: {
     flex: 1,
@@ -140,101 +184,132 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   listContent: {
-    padding: 8,
-    paddingBottom: 80,
+    paddingHorizontal: 12,
+    paddingVertical: 20,
+    paddingBottom: 100,
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    elevation: 2,
+    borderRadius: 16,
+    marginHorizontal: 8,
+    marginVertical: 10,
+    paddingVertical: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    borderLeftWidth: 4,
+    borderLeftColor: '#27AE60',
+  },
+  cardIcon: {
+    fontSize: 32,
+    marginLeft: 16,
+    marginRight: 12,
   },
   cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    flex: 1,
+    paddingRight: 16,
   },
   cardInfo: {
     flex: 1,
   },
   cardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#1B4D3E',
+    marginBottom: 6,
+    letterSpacing: 0.3,
   },
   cardSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 2,
+    fontSize: 13,
+    color: '#52796F',
+    marginBottom: 4,
+    fontWeight: '500',
   },
   cardArea: {
     fontSize: 12,
-    color: '#999',
+    color: '#6B9B8F',
+    fontWeight: '500',
   },
   chevron: {
-    fontSize: 30,
-    color: '#4CAF50',
-    fontWeight: 'bold',
+    fontSize: 24,
+    color: '#27AE60',
+    fontWeight: '600',
+    marginLeft: 8,
   },
   fab: {
     position: 'absolute',
-    right: 20,
-    bottom: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#4CAF50',
+    right: 24,
+    bottom: 24,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#27AE60',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    elevation: 8,
+    shadowColor: '#27AE60',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowRadius: 8,
   },
   fabIcon: {
-    fontSize: 32,
+    fontSize: 36,
     color: '#fff',
     fontWeight: 'bold',
+    lineHeight: 36,
   },
   emptyContainer: {
     alignItems: 'center',
     padding: 40,
-    marginTop: 60,
+    marginTop: 80,
+  },
+  emptyIcon: {
+    fontSize: 64,
+    marginBottom: 20,
   },
   emptyText: {
-    fontSize: 18,
-    color: '#666',
-    marginBottom: 8,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1B4D3E',
+    marginBottom: 12,
     textAlign: 'center',
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
+    color: '#52796F',
     textAlign: 'center',
+    lineHeight: 20,
+    fontWeight: '500',
   },
   errorText: {
     fontSize: 16,
-    color: '#f44336',
+    color: '#E74C3C',
     textAlign: 'center',
     marginBottom: 20,
+    fontWeight: '600',
   },
   retryButton: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
+    backgroundColor: '#27AE60',
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 12,
+    elevation: 3,
+    shadowColor: '#27AE60',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   retryButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
 });
 
