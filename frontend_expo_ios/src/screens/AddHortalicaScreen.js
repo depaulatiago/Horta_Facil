@@ -9,8 +9,8 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
-  Picker,
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { fetchHortalicas, createCultivo, calcularDimensionamento } from '../services/api';
 
 const AddHortalicaScreen = ({ route, navigation }) => {

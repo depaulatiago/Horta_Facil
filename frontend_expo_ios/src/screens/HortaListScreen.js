@@ -48,7 +48,7 @@ const HortaListScreen = ({ navigation }) => {
       activeOpacity={0.7}
       onPress={() => navigation.navigate('HortaDetalhe', { horta: item })}
     >
-      <View style={styles.cardIcon}>🌱</View>
+      <Text style={styles.cardIcon}>🌱</Text>
       <View style={styles.cardContent}>
         <View style={styles.cardInfo}>
           <Text style={styles.cardTitle}>{item.nome}</Text>

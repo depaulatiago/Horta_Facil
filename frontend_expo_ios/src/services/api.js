@@ -1,8 +1,12 @@
 // src/services/api.js
 import axios from 'axios';
 
-// URL base da API - usa localhost quando rodando localmente
-const API_BASE_URL = 'http://localhost:8000/api';
+// URL base da API
+// No celular/emulador, substitua 'localhost' pelo IP da sua máquina
+// Exemplo: const API_BASE_URL = 'http://192.168.1.100:8000/api';
+// Para descobrir seu IP: ifconfig ou hostname -I no terminal
+// Uso um fallback para o seu IP local detectado: 192.168.2.137
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://192.168.2.137:8000/api';
 
 // Crie uma instância do axios com configuração padrão
 const api = axios.create({
