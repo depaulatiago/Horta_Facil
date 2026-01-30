@@ -49,6 +49,20 @@ export const createHorta = async (hortaData) => {
 };
 
 /**
+ * Exclui uma horta
+ * @param {number} hortaId - ID da horta a ser excluída
+ * @returns {Promise<void>}
+ */
+export const deleteHorta = async (hortaId) => {
+  try {
+    await api.delete(`/hortas/${hortaId}/`);
+  } catch (error) {
+    console.error('Erro ao excluir horta:', error);
+    throw new Error(error.response?.data?.detail || 'Erro ao excluir horta');
+  }
+};
+
+/**
  * Busca todas as hortaliças (modelos de cultivo)
  * @returns {Promise<Array>} Lista de hortaliças
  */
@@ -94,6 +108,20 @@ export const createCultivo = async (cultivoData) => {
 };
 
 /**
+ * Exclui um cultivo
+ * @param {number} cultivoId - ID do cultivo a ser excluído
+ * @returns {Promise<void>}
+ */
+export const deleteCultivo = async (cultivoId) => {
+  try {
+    await api.delete(`/cultivos/${cultivoId}/`);
+  } catch (error) {
+    console.error('Erro ao excluir cultivo:', error);
+    throw new Error(error.response?.data?.detail || 'Erro ao excluir cultivo');
+  }
+};
+
+/**
  * Busca o calendário de atividades de um cultivo
  * @param {number} cultivoId - ID do cultivo
  * @returns {Promise<Array>} Lista de atividades do calendário
@@ -104,7 +132,35 @@ export const fetchCalendario = async (cultivoId) => {
     return response.data;
   } catch (error) {
     console.error('Erro ao buscar calendário:', error);
-    throw new Error(error.response?.data?.detail || 'Erro ao gerar calendário');
+    throw new Error(error.response?.data?.detail || 'Erro ao carregar calendário');
+  }
+};
+
+/**
+ * Busca o calendário consolidado de TODOS os cultivos do usuário
+ * @returns {Promise<Array>} Lista de atividades consolidadas
+ */
+export const fetchCalendarioConsolidado = async () => {
+  try {
+    const response = await api.get('/cultivos/calendario-consolidado/');
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar calendário consolidado:', error);
+    throw new Error(error.response?.data?.detail || 'Erro ao carregar cronograma');
+  }
+};
+
+/**
+ * Gera PDF com cronograma semanal
+ * @returns {Promise<string>} URL do PDF gerado
+ */
+export const gerarPDFSemanal = async () => {
+  try {
+    const url = `${API_BASE_URL}/cultivos/gerar-pdf-semanal/`;
+    return url;
+  } catch (error) {
+    console.error('Erro ao gerar PDF:', error);
+    throw new Error(error.response?.data?.detail || 'Erro ao gerar PDF');
   }
 };
 
@@ -159,4 +215,5 @@ export const fetchCultivosDetalhados = async (hortaId) => {
   }
 };
 
+export { API_BASE_URL };
 export default api;

@@ -11,7 +11,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { calcularDimensionamento } from '../services/api';
+import { calcularDimensionamento, deleteCultivo } from '../services/api';
 
 const HortalicaDetalheScreen = ({ route, navigation }) => {
   const { cultivoDetalhado } = route.params;
@@ -49,12 +49,42 @@ const HortalicaDetalheScreen = ({ route, navigation }) => {
     }
   };
 
+  const handleExcluirCultivo = () => {
+    Alert.alert(
+      'Confirmar Exclusão',
+      `Deseja realmente excluir o cultivo de "${hortalica.nome}"? Esta ação não pode ser desfeita.`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteCultivo(cultivo.id);
+              navigation.goBack();
+            } catch (error) {
+              Alert.alert('Erro', error.message);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backText}>← Voltar</Text>
-        </TouchableOpacity>
+        <View style={styles.headerTop}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Text style={styles.backText}>← Voltar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleExcluirCultivo} style={styles.deleteButton}>
+            <Text style={styles.deleteButtonText}>🗑️ Excluir</Text>
+          </TouchableOpacity>
+        </View>
         <Text style={styles.headerTitle}>{hortalica.nome}</Text>
       </View>
       
@@ -167,16 +197,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   header: {
-    backgroundColor: '#34495E',
+    backgroundColor: '#27AE60',
     padding: 16,
     paddingTop: 50,
   },
-  backButton: {
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 8,
+  },
+  backButton: {
+    flex: 1,
   },
   backText: {
     color: '#fff',
     fontSize: 16,
+  },
+  deleteButton: {
+    backgroundColor: 'rgba(231, 76, 60, 0.9)',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
   },
   headerTitle: {
     fontSize: 20,

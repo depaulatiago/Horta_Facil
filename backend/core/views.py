@@ -9,8 +9,9 @@ from .serializers import (
 )
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from datetime import timedelta
+from datetime import timedelta, datetime
 import math
+from django.http import HttpResponse
 
 class HortaViewSet(viewsets.ModelViewSet):
     """
@@ -128,6 +129,176 @@ class CultivoViewSet(viewsets.ModelViewSet):
             })
 
         return Response(atividades)
+
+    @action(detail=False, methods=['get'], url_path='calendario-consolidado')
+    def calendario_consolidado(self, request):
+        """
+        Retorna o calendário consolidado de TODOS os cultivos
+        Exemplo: /api/cultivos/calendario-consolidado/
+        """
+        # Filtrar todos os cultivos
+        cultivos = Cultivo.objects.all()
+        
+        atividades_consolidadas = []
+        
+        for cultivo in cultivos:
+            hortalica = cultivo.hortalica
+            horta = cultivo.horta
+            data_inicio = cultivo.data_inicio
+            num_modulos = cultivo.num_modulos
+            periodicidade_plantio = hortalica.periodicidade
+            ciclo_dev = hortalica.ciclo_desenvolvimento
+            ciclo_col = hortalica.ciclo_colheita
+            ciclo_limp = hortalica.ciclo_limpeza
+            
+            for i in range(num_modulos):
+                inicio_plantio_modulo = data_inicio + timedelta(weeks=(i * periodicidade_plantio))
+                inicio_colheita = inicio_plantio_modulo + timedelta(weeks=ciclo_dev)
+                fim_colheita = inicio_colheita + timedelta(weeks=ciclo_col)
+                inicio_limpeza = fim_colheita
+                fim_limpeza = inicio_limpeza + timedelta(weeks=ciclo_limp)
+                
+                atividades_consolidadas.append({
+                    "horta_id": horta.id,
+                    "horta_nome": horta.nome,
+                    "hortalica_id": hortalica.id,
+                    "hortalica_nome": hortalica.nome,
+                    "cultivo_id": cultivo.id,
+                    "modulo": i + 1,
+                    "data_plantio": inicio_plantio_modulo.isoformat(),
+                    "data_inicio_colheita": inicio_colheita.isoformat(),
+                    "data_fim_colheita": fim_colheita.isoformat(),
+                    "data_inicio_limpeza": inicio_limpeza.isoformat(),
+                    "data_proximo_plantio_disponivel": fim_limpeza.isoformat(),
+                })
+        
+        # Ordenar por data
+        atividades_consolidadas.sort(key=lambda x: x['data_plantio'])
+        return Response(atividades_consolidadas)
+    
+    @action(detail=False, methods=['get'], url_path='gerar-pdf-semanal')
+    def gerar_pdf_semanal(self, request):
+        """
+        Gera um PDF com todas as tarefas da semana atual
+        """
+        # Importar aqui (lazy import) para evitar erro se reportlab não estiver instalado
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib import colors
+        from reportlab.lib.units import inch
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet
+        
+        # Pegar data inicial da semana (segunda-feira)
+        hoje = datetime.now().date()
+        inicio_semana = hoje - timedelta(days=hoje.weekday())
+        fim_semana = inicio_semana + timedelta(days=6)
+        
+        # Buscar todos os cultivos
+        cultivos = Cultivo.objects.all()
+        tarefas = []
+        
+        for cultivo in cultivos:
+            hortalica = cultivo.hortalica
+            horta = cultivo.horta
+            data_inicio = cultivo.data_inicio
+            num_modulos = cultivo.num_modulos
+            periodicidade_plantio = hortalica.periodicidade
+            ciclo_dev = hortalica.ciclo_desenvolvimento
+            ciclo_col = hortalica.ciclo_colheita
+            
+            for i in range(num_modulos):
+                # Calcular datas do módulo
+                data_plantio = data_inicio + timedelta(weeks=(i * periodicidade_plantio))
+                data_inicio_colheita = data_plantio + timedelta(weeks=ciclo_dev)
+                data_fim_colheita = data_inicio_colheita + timedelta(weeks=ciclo_col)
+                
+                # Verificar se plantio está na semana
+                if inicio_semana <= data_plantio <= fim_semana:
+                    tarefas.append({
+                        'data': data_plantio,
+                        'tipo': 'Plantio',
+                        'hortalica': hortalica.nome,
+                        'horta': horta.nome,
+                        'modulo': i + 1
+                    })
+                
+                # Verificar se início de colheita está na semana
+                if inicio_semana <= data_inicio_colheita <= fim_semana:
+                    tarefas.append({
+                        'data': data_inicio_colheita,
+                        'tipo': 'Início Colheita',
+                        'hortalica': hortalica.nome,
+                        'horta': horta.nome,
+                        'modulo': i + 1
+                    })
+                
+                # Verificar se fim de colheita está na semana
+                if inicio_semana <= data_fim_colheita <= fim_semana:
+                    tarefas.append({
+                        'data': data_fim_colheita,
+                        'tipo': 'Fim Colheita',
+                        'hortalica': hortalica.nome,
+                        'horta': horta.nome,
+                        'modulo': i + 1
+                    })
+        
+        # Ordenar por data
+        tarefas.sort(key=lambda x: x['data'])
+        
+        # Criar PDF
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="cronograma_semana_{inicio_semana}.pdf"'
+        
+        doc = SimpleDocTemplate(response, pagesize=A4, topMargin=0.5*inch)
+        elementos = []
+        styles = getSampleStyleSheet()
+        
+        # Título
+        titulo_texto = f"<b>Cronograma Semanal</b><br/>{inicio_semana.strftime('%d/%m/%Y')} a {fim_semana.strftime('%d/%m/%Y')}"
+        titulo = Paragraph(titulo_texto, styles['Title'])
+        elementos.append(titulo)
+        elementos.append(Spacer(1, 0.3*inch))
+        
+        # Tabela de tarefas
+        if tarefas:
+            dados = [['Data', 'Tipo', 'Hortaliça', 'Horta', 'Módulo']]
+            for tarefa in tarefas:
+                dados.append([
+                    tarefa['data'].strftime('%d/%m/%Y'),
+                    tarefa['tipo'],
+                    tarefa['hortalica'],
+                    tarefa['horta'],
+                    str(tarefa['modulo'])
+                ])
+            
+            tabela = Table(dados, colWidths=[1.2*inch, 1.5*inch, 2*inch, 2*inch, 1*inch])
+            tabela.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#27AE60')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 11),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('TOPPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#F0F9F7')),
+                ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 9),
+                ('TOPPADDING', (0, 1), (-1, -1), 8),
+                ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+            ]))
+            elementos.append(tabela)
+        else:
+            sem_tarefas = Paragraph("Nenhuma tarefa programada para esta semana.", styles['Normal'])
+            elementos.append(sem_tarefas)
+        
+        # Rodapé
+        elementos.append(Spacer(1, 0.5*inch))
+        rodape = Paragraph(f"<i>Gerado em {datetime.now().strftime('%d/%m/%Y às %H:%M')}</i>", styles['Normal'])
+        elementos.append(rodape)
+        
+        doc.build(elementos)
+        return response
 
 class ColheitaViewSet(viewsets.ModelViewSet):
     """

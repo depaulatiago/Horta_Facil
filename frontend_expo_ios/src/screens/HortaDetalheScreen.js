@@ -11,10 +11,11 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
-import { fetchCultivosDetalhados, fetchCalendario } from '../services/api';
+import { fetchCultivosDetalhados, fetchCalendario, deleteHorta, deleteCultivo } from '../services/api';
 
 const HortaDetalheScreen = ({ route, navigation }) => {
-  const { horta } = route.params;
+  const { horta } = route?.params || {};
+  
   const [cultivos, setCultivos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingCalendario, setLoadingCalendario] = useState(false);
@@ -22,7 +23,11 @@ const HortaDetalheScreen = ({ route, navigation }) => {
   const [showCalendarioModal, setShowCalendarioModal] = useState(false);
 
   useEffect(() => {
-    loadCultivos();
+    if (horta?.id) {
+      loadCultivos();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const loadCultivos = async () => {
@@ -49,8 +54,65 @@ const HortaDetalheScreen = ({ route, navigation }) => {
     }
   };
 
+  const handleExcluirHorta = () => {
+    Alert.alert(
+      'Confirmar Exclusão',
+      `Deseja realmente excluir a horta "${horta.nome}"? Esta ação não pode ser desfeita e todos os cultivos desta horta serão perdidos.`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteHorta(horta.id);
+              Alert.alert('Sucesso', 'Horta excluída com sucesso');
+              navigation.goBack();
+            } catch (error) {
+              Alert.alert('Erro', error.message);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleExcluirCultivo = (cultivoId, hortalicaNome) => {
+    Alert.alert(
+      'Confirmar Exclusão',
+      `Deseja realmente excluir o cultivo de "${hortalicaNome}"? Esta ação não pode ser desfeita.`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteCultivo(cultivoId);
+              Alert.alert('Sucesso', 'Cultivo excluído com sucesso');
+              loadCultivos();
+            } catch (error) {
+              Alert.alert('Erro', error.message);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const renderCultivoItem = ({ item }) => {
     const { cultivo, hortalica } = item;
+    
+    // Validação para evitar erro se hortalica for undefined
+    if (!hortalica || !cultivo) {
+      return null;
+    }
     
     return (
       <TouchableOpacity
@@ -105,12 +167,32 @@ const HortaDetalheScreen = ({ route, navigation }) => {
     );
   }
 
+  if (!horta) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorIcon}>⚠️</Text>
+        <Text style={styles.errorText}>Horta não encontrada</Text>
+        <TouchableOpacity 
+          style={styles.retryButton} 
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.retryButtonText}>Voltar</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backText}>‹ Voltar</Text>
-        </TouchableOpacity>
+        <View style={styles.headerTop}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Text style={styles.backText}>‹ Voltar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleExcluirHorta} style={styles.deleteButton}>
+            <Text style={styles.deleteButtonText}>🗑️ Excluir</Text>
+          </TouchableOpacity>
+        </View>
         <Text style={styles.headerTitle}>🌿 {horta.nome}</Text>
         {horta.localizacao && (
           <Text style={styles.headerSubtitle}>📍 {horta.localizacao}</Text>
@@ -218,14 +300,31 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  backButton: {
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 12,
+  },
+  backButton: {
+    flex: 1,
   },
   backText: {
     color: '#E8F8F5',
     fontSize: 18,
     fontWeight: '600',
     letterSpacing: 0.3,
+  },
+  deleteButton: {
+    backgroundColor: 'rgba(231, 76, 60, 0.9)',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
   },
   headerTitle: {
     fontSize: 28,
@@ -453,6 +552,28 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     lineHeight: 36,
+  },
+  errorIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1B4D3E',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  retryButton: {
+    backgroundColor: '#27AE60',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
   },
 });
 
