@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import MaterialIcon from '@expo/vector-icons/MaterialIcons';
 import { fetchCalendarioConsolidado, gerarPDFSemanal, API_BASE_URL } from '../services/api';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 
 const CalendarioScreen = ({ navigation }) => {
