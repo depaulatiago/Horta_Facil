@@ -1,126 +1,622 @@
 [
-{
-  "model": "core.horta",
-  "pk": 1,
-  "fields": {
-    "nome": "Horta Comunitaria",
-    "responsavel": 1,
-    "localizacao": "Vila Ester",
-    "area_total": 150.0,
-    "consumo_agua_estimado": 7.5
+  {
+    "model": "core.horta",
+    "pk": 1,
+    "fields": {
+      "nome": "Horta Comunitaria",
+      "responsavel": 1,
+      "localizacao": "Vila Ester",
+      "area_total": 150.0,
+      "consumo_agua_estimado": 7.5
+    }
+  },
+  {
+    "model": "core.horta",
+    "pk": 2,
+    "fields": {
+      "nome": "Horta da Escola",
+      "responsavel": 1,
+      "localizacao": "Vila Mariana",
+      "area_total": 50.0,
+      "consumo_agua_estimado": 2.5
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 1,
+    "fields": {
+      "nome": "Abobrinha-Caserta",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 6,
+      "ciclo_colheita": 4,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 1.0,
+      "espacamento_plantas": 0.7,
+      "produtividade_esperada": 28.0,
+      "area_modulo": 14.0,
+      "periodicidade": 2
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 2,
+    "fields": {
+      "nome": "Abobrinha-Menina",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 10,
+      "ciclo_colheita": 6,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 2.0,
+      "espacamento_plantas": 2.0,
+      "produtividade_esperada": 900.0,
+      "area_modulo": 450.0,
+      "periodicidade": 3
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 3,
+    "fields": {
+      "nome": "Alface lisa ou crespa",
+      "tipo_plantio": "mudas",
+      "ciclo_desenvolvimento": 5,
+      "ciclo_colheita": 1,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 0.3,
+      "espacamento_plantas": 0.3,
+      "produtividade_esperada": 14.0,
+      "area_modulo": 1.575,
+      "periodicidade": 1
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 4,
+    "fields": {
+      "nome": "Alface americana",
+      "tipo_plantio": "mudas",
+      "ciclo_desenvolvimento": 7,
+      "ciclo_colheita": 1,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 0.4,
+      "espacamento_plantas": 0.4,
+      "produtividade_esperada": 1500.0,
+      "area_modulo": 300.0,
+      "periodicidade": 1
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 5,
+    "fields": {
+      "nome": "Batata",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 15,
+      "ciclo_colheita": 1,
+      "ciclo_limpeza": 2,
+      "espacamento_linhas": 0.8,
+      "espacamento_plantas": 0.3,
+      "produtividade_esperada": 14.0,
+      "area_modulo": 8.4,
+      "periodicidade": 1
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 6,
+    "fields": {
+      "nome": "Batata-doce",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 22,
+      "ciclo_colheita": 4,
+      "ciclo_limpeza": 2,
+      "espacamento_linhas": 0.8,
+      "espacamento_plantas": 0.4,
+      "produtividade_esperada": 28.0,
+      "area_modulo": 11.2,
+      "periodicidade": 2
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 7,
+    "fields": {
+      "nome": "Berinjela",
+      "tipo_plantio": "mudas",
+      "ciclo_desenvolvimento": 12,
+      "ciclo_colheita": 8,
+      "ciclo_limpeza": 2,
+      "espacamento_linhas": 1.2,
+      "espacamento_plantas": 1.0,
+      "produtividade_esperada": 56.0,
+      "area_modulo": 6.72,
+      "periodicidade": 4
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 8,
+    "fields": {
+      "nome": "Beterraba",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 8,
+      "ciclo_colheita": 4,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 0.25,
+      "espacamento_plantas": 0.12,
+      "produtividade_esperada": 2000.0,
+      "area_modulo": 600.0,
+      "periodicidade": 2
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 9,
+    "fields": {
+      "nome": "Brócolo Japonês",
+      "tipo_plantio": "mudas",
+      "ciclo_desenvolvimento": 8,
+      "ciclo_colheita": 2,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 0.8,
+      "espacamento_plantas": 0.5,
+      "produtividade_esperada": 14.0,
+      "area_modulo": 5.6,
+      "periodicidade": 1
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 10,
+    "fields": {
+      "nome": "Brócolo Ramoso",
+      "tipo_plantio": "mudas",
+      "ciclo_desenvolvimento": 9,
+      "ciclo_colheita": 4,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 1.0,
+      "espacamento_plantas": 0.5,
+      "produtividade_esperada": 28.0,
+      "area_modulo": 14.0,
+      "periodicidade": 2
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 11,
+    "fields": {
+      "nome": "Cebolinha",
+      "tipo_plantio": "mudas",
+      "ciclo_desenvolvimento": 9,
+      "ciclo_colheita": 2,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 0.25,
+      "espacamento_plantas": 0.2,
+      "produtividade_esperada": 14.0,
+      "area_modulo": 0.9333333333,
+      "periodicidade": 1
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 12,
+    "fields": {
+      "nome": "Cenoura",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 15,
+      "ciclo_colheita": 2,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 0.2,
+      "espacamento_plantas": 0.1,
+      "produtividade_esperada": 14.0,
+      "area_modulo": 4.0,
+      "periodicidade": 1
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 13,
+    "fields": {
+      "nome": "Couve",
+      "tipo_plantio": "mudas",
+      "ciclo_desenvolvimento": 8,
+      "ciclo_colheita": 24,
+      "ciclo_limpeza": 2,
+      "espacamento_linhas": 1.0,
+      "espacamento_plantas": 0.5,
+      "produtividade_esperada": 168.0,
+      "area_modulo": 17.14285714,
+      "periodicidade": 12
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 14,
+    "fields": {
+      "nome": "Couve-chinesa",
+      "tipo_plantio": "mudas",
+      "ciclo_desenvolvimento": 7,
+      "ciclo_colheita": 2,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 0.7,
+      "espacamento_plantas": 0.3,
+      "produtividade_esperada": 14.0,
+      "area_modulo": 3.266666667,
+      "periodicidade": 1
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 15,
+    "fields": {
+      "nome": "Couve-flor",
+      "tipo_plantio": "mudas",
+      "ciclo_desenvolvimento": 11,
+      "ciclo_colheita": 4,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 1.0,
+      "espacamento_plantas": 0.5,
+      "produtividade_esperada": 28.0,
+      "area_modulo": 17.5,
+      "periodicidade": 2
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 16,
+    "fields": {
+      "nome": "Espinafre",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 10,
+      "ciclo_colheita": 4,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 0.4,
+      "espacamento_plantas": 0.3,
+      "produtividade_esperada": 28.0,
+      "area_modulo": 4.8,
+      "periodicidade": 2
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 17,
+    "fields": {
+      "nome": "Feijão-Vagem Trepador",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 10,
+      "ciclo_colheita": 4,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 1.0,
+      "espacamento_plantas": 0.5,
+      "produtividade_esperada": 28.0,
+      "area_modulo": 11.66666667,
+      "periodicidade": 2
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 18,
+    "fields": {
+      "nome": "Jiló",
+      "tipo_plantio": "mudas",
+      "ciclo_desenvolvimento": 12,
+      "ciclo_colheita": 8,
+      "ciclo_limpeza": 2,
+      "espacamento_linhas": 1.2,
+      "espacamento_plantas": 1.0,
+      "produtividade_esperada": 56.0,
+      "area_modulo": 13.44,
+      "periodicidade": 4
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 19,
+    "fields": {
+      "nome": "Mandioca (aipim)",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 48,
+      "ciclo_colheita": 8,
+      "ciclo_limpeza": 2,
+      "espacamento_linhas": 1.0,
+      "espacamento_plantas": 0.6,
+      "produtividade_esperada": 56.0,
+      "area_modulo": 33.6,
+      "periodicidade": 4
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 20,
+    "fields": {
+      "nome": "Melancia",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 15,
+      "ciclo_colheita": 4,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 2.0,
+      "espacamento_plantas": 2.0,
+      "produtividade_esperada": 28.0,
+      "area_modulo": 14.0,
+      "periodicidade": 2
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 21,
+    "fields": {
+      "nome": "Melão",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 12,
+      "ciclo_colheita": 4,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 2.0,
+      "espacamento_plantas": 1.5,
+      "produtividade_esperada": 28.0,
+      "area_modulo": 10.5,
+      "periodicidade": 2
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 22,
+    "fields": {
+      "nome": "Milho Verde",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 13,
+      "ciclo_colheita": 2,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 1.0,
+      "espacamento_plantas": 0.2,
+      "produtividade_esperada": 14.0,
+      "area_modulo": 3.5,
+      "periodicidade": 1
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 23,
+    "fields": {
+      "nome": "Moranga/abóbora Rasteira",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 14,
+      "ciclo_colheita": 4,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 2.0,
+      "espacamento_plantas": 2.0,
+      "produtividade_esperada": 28.0,
+      "area_modulo": 22.4,
+      "periodicidade": 2
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 24,
+    "fields": {
+      "nome": "Moranga Samantha",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 12,
+      "ciclo_colheita": 2,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 1.0,
+      "espacamento_plantas": 0.7,
+      "produtividade_esperada": 14.0,
+      "area_modulo": 4.9,
+      "periodicidade": 1
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 25,
+    "fields": {
+      "nome": "Pepino Rasteiro",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 6,
+      "ciclo_colheita": 2,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 0.8,
+      "espacamento_plantas": 0.4,
+      "produtividade_esperada": 14.0,
+      "area_modulo": 2.986666667,
+      "periodicidade": 1
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 26,
+    "fields": {
+      "nome": "Pepino Tutorado",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 8,
+      "ciclo_colheita": 6,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 1.0,
+      "espacamento_plantas": 0.5,
+      "produtividade_esperada": 42.0,
+      "area_modulo": 5.25,
+      "periodicidade": 3
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 27,
+    "fields": {
+      "nome": "Pimentão",
+      "tipo_plantio": "mudas",
+      "ciclo_desenvolvimento": 10,
+      "ciclo_colheita": 12,
+      "ciclo_limpeza": 2,
+      "espacamento_linhas": 1.0,
+      "espacamento_plantas": 0.5,
+      "produtividade_esperada": 84.0,
+      "area_modulo": 14.0,
+      "periodicidade": 6
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 28,
+    "fields": {
+      "nome": "Quiabo",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 13,
+      "ciclo_colheita": 12,
+      "ciclo_limpeza": 2,
+      "espacamento_linhas": 1.0,
+      "espacamento_plantas": 0.4,
+      "produtividade_esperada": 84.0,
+      "area_modulo": 48.0,
+      "periodicidade": 6
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 29,
+    "fields": {
+      "nome": "Rabanete",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 4,
+      "ciclo_colheita": 1,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 0.25,
+      "espacamento_plantas": 0.1,
+      "produtividade_esperada": 14.0,
+      "area_modulo": 0.4375,
+      "periodicidade": 1
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 30,
+    "fields": {
+      "nome": "Rabano_Daikon",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 9,
+      "ciclo_colheita": 1,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 0.5,
+      "espacamento_plantas": 0.2,
+      "produtividade_esperada": 14.0,
+      "area_modulo": 1.555555556,
+      "periodicidade": 1
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 31,
+    "fields": {
+      "nome": "Repolho",
+      "tipo_plantio": "mudas",
+      "ciclo_desenvolvimento": 9,
+      "ciclo_colheita": 2,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 0.8,
+      "espacamento_plantas": 0.3,
+      "produtividade_esperada": 14.0,
+      "area_modulo": 3.733333333,
+      "periodicidade": 1
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 32,
+    "fields": {
+      "nome": "Salsa",
+      "tipo_plantio": "direta",
+      "ciclo_desenvolvimento": 10,
+      "ciclo_colheita": 8,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 0.25,
+      "espacamento_plantas": 0.1,
+      "produtividade_esperada": 56.0,
+      "area_modulo": 2.0,
+      "periodicidade": 4
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 33,
+    "fields": {
+      "nome": "Tomate Tutorado",
+      "tipo_plantio": "mudas",
+      "ciclo_desenvolvimento": 12,
+      "ciclo_colheita": 4,
+      "ciclo_limpeza": 2,
+      "espacamento_linhas": 1.0,
+      "espacamento_plantas": 0.7,
+      "produtividade_esperada": 2000.0,
+      "area_modulo": 350.0,
+      "periodicidade": 2
+    }
+  },
+  {
+    "model": "core.hortalica",
+    "pk": 34,
+    "fields": {
+      "nome": "Tomate Meia-Estaca",
+      "tipo_plantio": "mudas",
+      "ciclo_desenvolvimento": 12,
+      "ciclo_colheita": 3,
+      "ciclo_limpeza": 1,
+      "espacamento_linhas": 1.0,
+      "espacamento_plantas": 0.5,
+      "produtividade_esperada": 21.0,
+      "area_modulo": 5.25,
+      "periodicidade": 1
+    }
+  },
+  {
+    "model": "core.cultivo",
+    "pk": 1,
+    "fields": {
+      "horta": 2,
+      "hortalica": 1,
+      "data_inicio": "2025-11-06",
+      "producao_semanal_desejada": 100.0,
+      "num_modulos": 7,
+      "area_total_hortalica": 10.5
+    }
+  },
+  {
+    "model": "core.cultivo",
+    "pk": 2,
+    "fields": {
+      "horta": 2,
+      "hortalica": 3,
+      "data_inicio": "2024-05-20",
+      "producao_semanal_desejada": 20.0,
+      "num_modulos": 3,
+      "area_total_hortalica": 15.0
+    }
+  },
+  {
+    "model": "core.cultivo",
+    "pk": 3,
+    "fields": {
+      "horta": 1,
+      "hortalica": 2,
+      "data_inicio": "2025-11-01",
+      "producao_semanal_desejada": 50.0,
+      "num_modulos": 3,
+      "area_total_hortalica": 75.0
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$1000000$4B3NpGZN5VzgbsHWlc5Nkl$GP+NHxpbkEHED6mGJejSV0o+2P7qH6PaVqBwsEhoqec=",
+      "last_login": "2025-11-06T09:54:53.407Z",
+      "is_superuser": true,
+      "username": "admin",
+      "first_name": "",
+      "last_name": "",
+      "email": "admin@admin.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2025-11-06T09:53:48.221Z",
+      "groups": [],
+      "user_permissions": []
+    }
   }
-},
-{
-  "model": "core.horta",
-  "pk": 2,
-  "fields": {
-    "nome": "Horta da Escola",
-    "responsavel": 1,
-    "localizacao": "Vila Mariana",
-    "area_total": 50.0,
-    "consumo_agua_estimado": 2.5
-  }
-},
-{
-  "model": "core.hortalica",
-  "pk": 1,
-  "fields": {
-    "nome": "Alface Crespa",
-    "tipo_plantio": "mudas",
-    "ciclo_desenvolvimento": 5,
-    "ciclo_colheita": 1,
-    "ciclo_limpeza": 1,
-    "espacamento_linhas": 0.3,
-    "espacamento_plantas": 0.3,
-    "produtividade_esperada": 18.0,
-    "area_modulo": 1.5,
-    "periodicidade": 1
-  }
-},
-{
-  "model": "core.hortalica",
-  "pk": 2,
-  "fields": {
-    "nome": "Tomate Italiano",
-    "tipo_plantio": "mudas",
-    "ciclo_desenvolvimento": 8,
-    "ciclo_colheita": 6,
-    "ciclo_limpeza": 2,
-    "espacamento_linhas": 0.9,
-    "espacamento_plantas": 0.5,
-    "produtividade_esperada": 25.0,
-    "area_modulo": 25.0,
-    "periodicidade": 2
-  }
-},
-{
-  "model": "core.hortalica",
-  "pk": 3,
-  "fields": {
-    "nome": "Cenoura Nantes",
-    "tipo_plantio": "direta",
-    "ciclo_desenvolvimento": 10,
-    "ciclo_colheita": 2,
-    "ciclo_limpeza": 1,
-    "espacamento_linhas": 0.25,
-    "espacamento_plantas": 0.08,
-    "produtividade_esperada": 10.0,
-    "area_modulo": 5.0,
-    "periodicidade": 1
-  }
-},
-{
-  "model": "core.cultivo",
-  "pk": 1,
-  "fields": {
-    "horta": 2,
-    "hortalica": 1,
-    "data_inicio": "2025-11-06",
-    "producao_semanal_desejada": 100.0,
-    "num_modulos": 7,
-    "area_total_hortalica": 10.5
-  }
-},
-{
-  "model": "core.cultivo",
-  "pk": 2,
-  "fields": {
-    "horta": 2,
-    "hortalica": 3,
-    "data_inicio": "2024-05-20",
-    "producao_semanal_desejada": 20.0,
-    "num_modulos": 3,
-    "area_total_hortalica": 15.0
-  }
-},
-{
-  "model": "core.cultivo",
-  "pk": 3,
-  "fields": {
-    "horta": 1,
-    "hortalica": 2,
-    "data_inicio": "2025-11-01",
-    "producao_semanal_desejada": 50.0,
-    "num_modulos": 3,
-    "area_total_hortalica": 75.0
-  }
-},
-{
-  "model": "auth.user",
-  "pk": 1,
-  "fields": {
-    "password": "pbkdf2_sha256$1000000$4B3NpGZN5VzgbsHWlc5Nkl$GP+NHxpbkEHED6mGJejSV0o+2P7qH6PaVqBwsEhoqec=",
-    "last_login": "2025-11-06T09:54:53.407Z",
-    "is_superuser": true,
-    "username": "admin",
-    "first_name": "",
-    "last_name": "",
-    "email": "admin@admin.com",
-    "is_staff": true,
-    "is_active": true,
-    "date_joined": "2025-11-06T09:53:48.221Z",
-    "groups": [],
-    "user_permissions": []
-  }
-}
 ]
