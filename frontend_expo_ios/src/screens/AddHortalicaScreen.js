@@ -12,6 +12,7 @@ import {
   Modal,
   FlatList,
 } from 'react-native';
+import MaterialIcon from '@expo/vector-icons/MaterialIcons';
 import { fetchHortalicas, createCultivo, calcularDimensionamento } from '../services/api';
 
 const AddHortalicaScreen = ({ route, navigation }) => {
@@ -299,7 +300,7 @@ const AddHortalicaScreen = ({ route, navigation }) => {
             <Text style={styles.selectorText}>
               {dataInicio || 'Toque para selecionar data'}
             </Text>
-            <Text style={styles.selectorArrow}>📅</Text>
+            <MaterialIcon name="calendar-today" size={20} color="#27AE60" />
           </TouchableOpacity>
         </View>
 

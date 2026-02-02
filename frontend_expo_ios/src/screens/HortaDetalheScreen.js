@@ -11,6 +11,7 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
+import MaterialIcon from '@expo/vector-icons/MaterialIcons';
 import { fetchCultivosDetalhados, fetchCalendario, deleteHorta, deleteCultivo } from '../services/api';
 
 const HortaDetalheScreen = ({ route, navigation }) => {
@@ -124,12 +125,12 @@ const HortaDetalheScreen = ({ route, navigation }) => {
       >
         <View style={styles.cardHeader}>
           <View style={styles.cardIcon}>
-            <Text style={styles.cardIconText}>🥬</Text>
+            <MaterialIcon name="leaf" size={32} color="#27AE60" />
           </View>
           <View style={styles.cardTitleSection}>
             <Text style={styles.cardTitle}>{hortalica.nome}</Text>
             <Text style={styles.cardSubtitle}>
-              📅 Início: {cultivo.data_inicio}
+              <MaterialIcon name="calendar-today" size={14} color="#666" /> Início: {cultivo.data_inicio}
             </Text>
           </View>
           <TouchableOpacity
@@ -140,7 +141,7 @@ const HortaDetalheScreen = ({ route, navigation }) => {
             {loadingCalendario ? (
               <ActivityIndicator size="small" color="#27AE60" />
             ) : (
-              <Text style={styles.calendarIcon}>📆</Text>
+              <MaterialIcon name="calendar-month" size={20} color="#27AE60" />
             )}
           </TouchableOpacity>
         </View>
@@ -170,7 +171,7 @@ const HortaDetalheScreen = ({ route, navigation }) => {
   if (!horta) {
     return (
       <View style={styles.centerContainer}>
-        <Text style={styles.errorIcon}>⚠️</Text>
+        <MaterialIcon name="warning" size={48} color="#E74C3C" />
         <Text style={styles.errorText}>Horta não encontrada</Text>
         <TouchableOpacity 
           style={styles.retryButton} 
@@ -190,15 +191,23 @@ const HortaDetalheScreen = ({ route, navigation }) => {
             <Text style={styles.backText}>‹ Voltar</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleExcluirHorta} style={styles.deleteButton}>
-            <Text style={styles.deleteButtonText}>🗑️ Excluir</Text>
+            <Text style={styles.deleteButtonText}>
+              <MaterialIcon name="delete" size={16} color="#E74C3C" /> Excluir
+            </Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.headerTitle}>🌿 {horta.nome}</Text>
+          <Text style={styles.headerTitle}>
+            <MaterialIcon name="spa" size={24} color="#27AE60" /> {horta.nome}
+          </Text>
         {horta.localizacao && (
-          <Text style={styles.headerSubtitle}>📍 {horta.localizacao}</Text>
+          <Text style={styles.headerSubtitle}>
+            <MaterialIcon name="location-on" size={14} color="#999" /> {horta.localizacao}
+          </Text>
         )}
         {horta.area_total && (
-          <Text style={styles.headerSubtitle}>📐 Área: {horta.area_total} m²</Text>
+          <Text style={styles.headerSubtitle}>
+            <MaterialIcon name="square-foot" size={14} color="#999" /> Área: {horta.area_total} m²
+          </Text>
         )}
       </View>
 
@@ -212,7 +221,7 @@ const HortaDetalheScreen = ({ route, navigation }) => {
         scrollIndicatorInsets={{ right: 1 }}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>🌱</Text>
+            <MaterialIcon name="eco" size={48} color="#CCC" />
             <Text style={styles.emptyText}>
               Nenhum cultivo cadastrado
             </Text>
@@ -242,9 +251,11 @@ const HortaDetalheScreen = ({ route, navigation }) => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>📅 Calendário</Text>
+              <Text style={styles.modalTitle}>
+                <MaterialIcon name="calendar-today" size={18} color="#333" /> Calendário
+              </Text>
               <TouchableOpacity onPress={() => setShowCalendarioModal(false)}>
-                <Text style={styles.modalClose}>✕</Text>
+                <MaterialIcon name="close" size={24} color="#333" />
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
@@ -252,19 +263,25 @@ const HortaDetalheScreen = ({ route, navigation }) => {
                 <View key={index} style={styles.atividadeCard}>
                   <View style={styles.atividadeHeader}>
                     <Text style={styles.atividadeTitle}>
-                      🔢 Módulo {atividade.modulo}
+                      <MaterialIcon name="dashboard" size={16} color="#666" /> Módulo {atividade.modulo}
                     </Text>
                   </View>
                   <View style={styles.atividadeLine}>
-                    <Text style={styles.atividadeLabel}>🌱 Plantio:</Text>
+                    <Text style={styles.atividadeLabel}>
+                      <MaterialIcon name="eco" size={14} color="#27AE60" /> Plantio:
+                    </Text>
                     <Text style={styles.atividadeValue}>{atividade.data_plantio}</Text>
                   </View>
                   <View style={styles.atividadeLine}>
-                    <Text style={styles.atividadeLabel}>🌾 Início Colheita:</Text>
+                    <Text style={styles.atividadeLabel}>
+                      <MaterialIcon name="local-florist" size={14} color="#27AE60" /> Início Colheita:
+                    </Text>
                     <Text style={styles.atividadeValue}>{atividade.data_inicio_colheita}</Text>
                   </View>
                   <View style={styles.atividadeLine}>
-                    <Text style={styles.atividadeLabel}>🎯 Fim Colheita:</Text>
+                    <Text style={styles.atividadeLabel}>
+                      <MaterialIcon name="done" size={14} color="#27AE60" /> Fim Colheita:
+                    </Text>
                     <Text style={styles.atividadeValue}>{atividade.data_fim_colheita}</Text>
                   </View>
                 </View>

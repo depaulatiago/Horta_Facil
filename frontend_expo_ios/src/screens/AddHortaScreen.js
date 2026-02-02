@@ -11,6 +11,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
+import MaterialIcon from '@expo/vector-icons/MaterialIcons';
 import { createHorta } from '../services/api';
 
 const AddHortaScreen = ({ navigation }) => {
@@ -59,7 +60,9 @@ const AddHortaScreen = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backText}>‹ Voltar</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>🌱 Criar Horta</Text>
+        <Text style={styles.headerTitle}>
+          <MaterialIcon name="eco" size={24} color="#27AE60" /> Criar Horta
+        </Text>
         <Text style={styles.headerSubtitle}>Comece seu cultivo agora</Text>
       </View>
       

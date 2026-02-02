@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import MaterialIcon from '@expo/vector-icons/MaterialIcons';
 
 // Importa as telas
 import SplashScreen from './src/screens/SplashScreen';
@@ -97,12 +98,11 @@ export default function App() {
           ]}
           onPress={() => switchTab('hortas')}
         >
-          <Text style={[
-            styles.tabIcon,
-            mainTab === 'hortas' && styles.tabIconActive,
-          ]}>
-            🌱
-          </Text>
+          <MaterialIcon 
+            name="eco" 
+            size={28}
+            color={mainTab === 'hortas' ? '#27AE60' : '#999'}
+          />
           <Text style={[
             styles.tabLabel,
             mainTab === 'hortas' && styles.tabLabelActive,
@@ -118,12 +118,11 @@ export default function App() {
           ]}
           onPress={() => switchTab('calendario')}
         >
-          <Text style={[
-            styles.tabIcon,
-            mainTab === 'calendario' && styles.tabIconActive,
-          ]}>
-            📅
-          </Text>
+          <MaterialIcon 
+            name="calendar-today" 
+            size={28}
+            color={mainTab === 'calendario' ? '#27AE60' : '#999'}
+          />
           <Text style={[
             styles.tabLabel,
             mainTab === 'calendario' && styles.tabLabelActive,

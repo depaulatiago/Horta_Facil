@@ -11,6 +11,7 @@ import {
   RefreshControl,
   Image,
 } from 'react-native';
+import MaterialIcon from '@expo/vector-icons/MaterialIcons';
 import { fetchHortas } from '../services/api';
 
 const HortaListScreen = ({ navigation }) => {
@@ -48,15 +49,19 @@ const HortaListScreen = ({ navigation }) => {
       activeOpacity={0.7}
       onPress={() => navigation.navigate('HortaDetalhe', { horta: item })}
     >
-      <Text style={styles.cardIcon}>🌱</Text>
+      <Text style={styles.cardIcon}>
+        <MaterialIcon name="eco" size={32} color="#27AE60" />
+      </Text>
       <View style={styles.cardContent}>
         <View style={styles.cardInfo}>
           <Text style={styles.cardTitle}>{item.nome}</Text>
           <Text style={styles.cardSubtitle}>
-            📍 {item.localizacao || 'Localização não informada'}
+            <MaterialIcon name="location-on" size={14} color="#666" /> {item.localizacao || 'Localização não informada'}
           </Text>
           {item.area_total && (
-            <Text style={styles.cardArea}>📐 Área: {item.area_total} m²</Text>
+            <Text style={styles.cardArea}>
+              <MaterialIcon name="square-foot" size={14} color="#666" /> Área: {item.area_total} m²
+            </Text>
           )}
         </View>
         <Text style={styles.chevron}>→</Text>
@@ -114,7 +119,7 @@ const HortaListScreen = ({ navigation }) => {
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>🌱</Text>
+            <MaterialIcon name="eco" size={48} color="#CCC" />
             <Text style={styles.emptyText}>Nenhuma horta cadastrada</Text>
             <Text style={styles.emptySubtext}>
               Comece a cultivar! Toque no botão + para criar sua primeira horta

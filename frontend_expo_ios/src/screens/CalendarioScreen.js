@@ -14,6 +14,7 @@ import {
   Image,
   Linking,
 } from 'react-native';
+import MaterialIcon from '@expo/vector-icons/MaterialIcons';
 import { fetchCalendarioConsolidado, gerarPDFSemanal, API_BASE_URL } from '../services/api';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
@@ -23,7 +24,7 @@ const CalendarioScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
-  const [filtroTipo, setFiltroTipo] = useState('todas'); // 'todas', 'plantio', 'colheita', 'limpeza'
+  const [filtroTipo, setFiltroTipo] = useState('todas'); // 'todas', 'plantio', 'colheita'
 
   const loadCalendario = async () => {
     try {
@@ -115,20 +116,17 @@ const CalendarioScreen = ({ navigation }) => {
   const obterTipoAtividade = (atividade) => {
     if (atividade.data_plantio) return 'plantio';
     if (atividade.data_inicio_colheita) return 'colheita';
-    if (atividade.data_inicio_limpeza) return 'limpeza';
     return 'outro';
   };
 
   const obterIconeAtividade = (tipo) => {
     switch (tipo) {
       case 'plantio':
-        return '🌱';
+        return 'eco';
       case 'colheita':
-        return '🌾';
-      case 'limpeza':
-        return '🧹';
+        return 'local-florist';
       default:
-        return '📅';
+        return 'calendar-today';
     }
   };
 
@@ -138,10 +136,8 @@ const CalendarioScreen = ({ navigation }) => {
         return 'Plantio';
       case 'colheita':
         return 'Colheita';
-      case 'limpeza':
-        return 'Limpeza';
       default:
-        return 'Tarefa';
+        return 'Outro';
     }
   };
 
@@ -154,20 +150,23 @@ const CalendarioScreen = ({ navigation }) => {
 
   const renderAtividadeItem = ({ item, section }) => {
     const tipo = obterTipoAtividade(item);
-    const icone = obterIconeAtividade(tipo);
+    const iconName = obterIconeAtividade(tipo);
     const data = new Date(item.data_plantio).toLocaleDateString('pt-BR');
 
     return (
       <View style={styles.atividadeCard}>
         <View style={styles.atividadeIcon}>
-          <Text style={styles.atividadeIconText}>{icone}</Text>
+          <MaterialIcon name={iconName} size={20} color="#27AE60" />
         </View>
         <View style={styles.atividadeConteudo}>
           <Text style={styles.atividadeTipo}>
             {obterTextoAtividade(tipo)} - Módulo {item.modulo}
           </Text>
           <Text style={styles.atividadeHortaliça}>{item.hortalica_nome}</Text>
-          <Text style={styles.atividadeHorta}>🏠 {item.horta_nome}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <MaterialIcon name="home" size={12} color="#666" />
+            <Text style={styles.atividadeHorta}> {item.horta_nome}</Text>
+          </View>
           <Text style={styles.atividadeData}>{data}</Text>
         </View>
         <TouchableOpacity style={styles.atividadeBotao}>
@@ -181,11 +180,7 @@ const CalendarioScreen = ({ navigation }) => {
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>{title}</Text>
       <Text style={styles.sectionCount}>
-        {title === 'Vencidas' && '⏰'}
-        {title === 'Hoje' && '📍'}
-        {title === 'Próximos 7 dias' && '⏰'}
-        {title === 'Próximos 30 dias' && '📅'}
-        {title === 'Depois' && '🔮'}
+        <MaterialIcon name={title === 'Vencidas' ? 'schedule' : title === 'Hoje' ? 'my-location' : title === 'Próximos 7 dias' ? 'schedule' : title === 'Próximos 30 dias' ? 'calendar-today' : 'auto-awesome'} size={14} color="#999" />
       </Text>
     </View>
   );
@@ -202,7 +197,9 @@ const CalendarioScreen = ({ navigation }) => {
   if (error && atividades.length === 0) {
     return (
       <View style={styles.centerContainer}>
-        <Text style={styles.errorIcon}>⚠️</Text>
+        <Text style={styles.errorIcon}>
+          <MaterialIcon name="warning" size={48} color="#E74C3C" />
+        </Text>
         <Text style={styles.errorText}>{error}</Text>
         <TouchableOpacity style={styles.retryButton} onPress={loadCalendario}>
           <Text style={styles.retryButtonText}>Tentar Novamente</Text>
@@ -233,7 +230,9 @@ const CalendarioScreen = ({ navigation }) => {
           onPress={handleGerarPDF}
           disabled={loading}
         >
-          <Text style={styles.pdfButtonText}>📄 Gerar PDF Semanal</Text>
+          <Text style={styles.pdfButtonText}>
+            <MaterialIcon name="picture-as-pdf" size={14} color="#FFF" /> Gerar PDF Semanal
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -269,7 +268,7 @@ const CalendarioScreen = ({ navigation }) => {
               filtroTipo === 'plantio' && styles.filtroTextoAtivo,
             ]}
           >
-            🌱 Plantio
+            <MaterialIcon name="eco" size={14} color={filtroTipo === 'plantio' ? '#27AE60' : '#666'} /> Plantio
           </Text>
         </TouchableOpacity>
 
@@ -287,23 +286,6 @@ const CalendarioScreen = ({ navigation }) => {
             ]}
           >
             🌾 Colheita
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filtroButton,
-            filtroTipo === 'limpeza' && styles.filtroButtonAtivo,
-          ]}
-          onPress={() => setFiltroTipo('limpeza')}
-        >
-          <Text
-            style={[
-              styles.filtroTexto,
-              filtroTipo === 'limpeza' && styles.filtroTextoAtivo,
-            ]}
-          >
-            🧹 Limpeza
           </Text>
         </TouchableOpacity>
       </View>
