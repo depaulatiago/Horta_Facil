@@ -20,7 +20,13 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "horta.facil.depaulatiago"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c5af9f98-6ec4-4a51-b63a-f9bc33c7f5e4"
+      }
     }
   }
 }
