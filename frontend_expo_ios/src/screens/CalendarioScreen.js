@@ -9,9 +9,12 @@ import {
   ActivityIndicator,
   Alert,
   RefreshControl,
+  ScrollView,
 } from 'react-native';
 import MaterialIcon from '@expo/vector-icons/MaterialIcons';
 import { fetchCultivos } from '../services/localDataService';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 
 const CalendarioScreen = ({ navigation }) => {
   const [cultivos, setCultivos] = useState([]);
@@ -40,6 +43,90 @@ const CalendarioScreen = ({ navigation }) => {
   const onRefresh = () => {
     setRefreshing(true);
     loadCultivos();
+  };
+
+  const gerarPDF = async () => {
+    try {
+      setLoading(true);
+      
+      // Cria conteúdo HTML para o PDF
+      let htmlContent = `
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              h1 { color: #27AE60; text-align: center; }
+              h2 { color: #1B4D3E; margin-top: 20px; }
+              table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              th { background-color: #27AE60; color: white; }
+              tr:nth-child(even) { background-color: #f9f9f9; }
+            </style>
+          </head>
+          <body>
+            <h1>📅 Cronograma de Cultivos - Horta Fácil</h1>
+            <p><strong>Data de Geração:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+            <table>
+              <tr>
+                <th>Horta</th>
+                <th>Hortaliça</th>
+                <th>Data de Plantio</th>
+                <th>Data de Colheita</th>
+                <th>Módulos</th>
+                <th>Status</th>
+              </tr>
+      `;
+
+      cultivos.forEach(item => {
+        const dataInicio = new Date(item.data_inicio);
+        const dataColheita = calcularDataColheita(item.data_inicio, item.ciclo_desenvolvimento);
+        const hoje = new Date();
+        const diasParaColheita = Math.floor((dataColheita - hoje) / (1000 * 60 * 60 * 24));
+        const status = diasParaColheita < 0 ? '⚠️ Atrasado' : diasParaColheita === 0 ? '✓ Hoje' : `✓ ${diasParaColheita} dias`;
+
+        htmlContent += `
+          <tr>
+            <td>${item.horta_nome}</td>
+            <td>${item.hortalica_nome}</td>
+            <td>${dataInicio.toLocaleDateString('pt-BR')}</td>
+            <td>${dataColheita.toLocaleDateString('pt-BR')}</td>
+            <td>${item.num_modulos}</td>
+            <td>${status}</td>
+          </tr>
+        `;
+      });
+
+      htmlContent += `
+            </table>
+            <footer style="margin-top: 30px; text-align: center; color: #999; font-size: 12px;">
+              <p>Gerado pelo aplicativo Horta Fácil</p>
+            </footer>
+          </body>
+        </html>
+      `;
+
+      // Salva o arquivo HTML com encoding UTF-8 explícito
+      const filename = `cronograma_${new Date().getTime()}.html`;
+      const fileUri = FileSystem.documentDirectory + filename;
+      
+      await FileSystem.writeAsStringAsync(fileUri, htmlContent, {
+        encoding: FileSystem.EncodingType.UTF8
+      });
+      
+      // Compartilha o arquivo
+      await Sharing.shareAsync(fileUri, {
+        mimeType: 'text/html',
+        dialogTitle: 'Cronograma de Cultivos',
+      });
+
+      Alert.alert('Sucesso', 'Cronograma gerado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      Alert.alert('Erro', 'Não foi possível gerar o cronograma: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const calcularDataColheita = (dataInicio, cicloDesenvolvimento) => {
@@ -110,6 +197,17 @@ const CalendarioScreen = ({ navigation }) => {
           </View>
         </View>
       </View>
+
+      {cultivos.length > 0 && (
+        <TouchableOpacity
+          style={styles.pdfButton}
+          onPress={gerarPDF}
+          disabled={loading}
+        >
+          <MaterialIcon name="picture-as-pdf" size={16} color="#fff" style={{ marginRight: 8 }} />
+          <Text style={styles.pdfButtonText}>Gerar Cronograma</Text>
+        </TouchableOpacity>
+      )}
 
       {cultivos.length > 0 ? (
         <FlatList
@@ -235,6 +333,28 @@ const styles = StyleSheet.create({
   },
   statusAtrasado: {
     color: '#d32f2f',
+  },
+  pdfButton: {
+    backgroundColor: '#E74C3C',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginHorizontal: 16,
+    marginVertical: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#E74C3C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  pdfButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
   },
   emptyContainer: {
     flex: 1,
