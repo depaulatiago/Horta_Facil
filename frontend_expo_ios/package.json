@@ -8,8 +8,8 @@
     "ios": "expo start --ios"
   },
   "dependencies": {
-    "@react-native-picker/picker": "^2.4.2",
-    "expo": "~54.0.31",
+    "@react-native-picker/picker": "2.11.1",
+    "expo": "~54.0.33",
     "expo-file-system": "^19.0.21",
     "expo-sharing": "^14.0.8",
     "expo-sqlite": "^16.0.10",
