@@ -12,16 +12,13 @@ import {
   ScrollView,
 } from 'react-native';
 import MaterialIcon from '@expo/vector-icons/MaterialIcons';
-import { fetchCultivosDetalhados, fetchCalendario, deleteHorta, deleteCultivo } from '../services/api';
+import { fetchCultivos, deleteHorta, deleteCultivo, fetchHortalicaById } from '../services/localDataService';
 
 const HortaDetalheScreen = ({ route, navigation }) => {
   const { horta } = route?.params || {};
   
   const [cultivos, setCultivos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [loadingCalendario, setLoadingCalendario] = useState(false);
-  const [calendario, setCalendario] = useState(null);
-  const [showCalendarioModal, setShowCalendarioModal] = useState(false);
 
   useEffect(() => {
     if (horta?.id) {
@@ -33,8 +30,24 @@ const HortaDetalheScreen = ({ route, navigation }) => {
 
   const loadCultivos = async () => {
     try {
-      const data = await fetchCultivosDetalhados(horta.id);
-      setCultivos(data);
+      const data = await fetchCultivos(horta.id);
+      // Transforma os dados no formato esperado pela tela
+      const cultivosFormatados = data.map(cultivo => ({
+        cultivo: {
+          id: cultivo.id,
+          data_inicio: cultivo.data_inicio,
+          producao_semanal_desejada: cultivo.producao_semanal_desejada,
+          num_modulos: cultivo.num_modulos,
+          area_total_hortalica: cultivo.area_total_hortalica
+        },
+        hortalica: {
+          nome: cultivo.hortalica_nome,
+          ciclo_desenvolvimento: cultivo.ciclo_desenvolvimento,
+          ciclo_colheita: cultivo.ciclo_colheita,
+          id: cultivo.hortalica_id
+        }
+      }));
+      setCultivos(cultivosFormatados);
     } catch (error) {
       Alert.alert('Erro', error.message);
     } finally {
@@ -133,17 +146,6 @@ const HortaDetalheScreen = ({ route, navigation }) => {
               <MaterialIcon name="calendar-today" size={14} color="#666" /> Início: {cultivo.data_inicio}
             </Text>
           </View>
-          <TouchableOpacity
-            style={styles.calendarButton}
-            onPress={() => handleGerarCalendario(cultivo.id)}
-            disabled={loadingCalendario}
-          >
-            {loadingCalendario ? (
-              <ActivityIndicator size="small" color="#27AE60" />
-            ) : (
-              <MaterialIcon name="calendar-month" size={20} color="#27AE60" />
-            )}
-          </TouchableOpacity>
         </View>
         <View style={styles.cardDetails}>
           <View style={styles.detailItem}>
@@ -240,56 +242,6 @@ const HortaDetalheScreen = ({ route, navigation }) => {
       >
         <Text style={styles.fabIcon}>+</Text>
       </TouchableOpacity>
-
-      {/* Modal do Calendário */}
-      <Modal
-        visible={showCalendarioModal}
-        animationType="fade"
-        transparent={true}
-        onRequestClose={() => setShowCalendarioModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
-                <MaterialIcon name="calendar-today" size={18} color="#333" /> Calendário
-              </Text>
-              <TouchableOpacity onPress={() => setShowCalendarioModal(false)}>
-                <MaterialIcon name="close" size={24} color="#333" />
-              </TouchableOpacity>
-            </View>
-            <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
-              {calendario?.map((atividade, index) => (
-                <View key={index} style={styles.atividadeCard}>
-                  <View style={styles.atividadeHeader}>
-                    <Text style={styles.atividadeTitle}>
-                      <MaterialIcon name="dashboard" size={16} color="#666" /> Módulo {atividade.modulo}
-                    </Text>
-                  </View>
-                  <View style={styles.atividadeLine}>
-                    <Text style={styles.atividadeLabel}>
-                      <MaterialIcon name="eco" size={14} color="#27AE60" /> Plantio:
-                    </Text>
-                    <Text style={styles.atividadeValue}>{atividade.data_plantio}</Text>
-                  </View>
-                  <View style={styles.atividadeLine}>
-                    <Text style={styles.atividadeLabel}>
-                      <MaterialIcon name="local-florist" size={14} color="#27AE60" /> Início Colheita:
-                    </Text>
-                    <Text style={styles.atividadeValue}>{atividade.data_inicio_colheita}</Text>
-                  </View>
-                  <View style={styles.atividadeLine}>
-                    <Text style={styles.atividadeLabel}>
-                      <MaterialIcon name="done" size={14} color="#27AE60" /> Fim Colheita:
-                    </Text>
-                    <Text style={styles.atividadeValue}>{atividade.data_fim_colheita}</Text>
-                  </View>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };
@@ -471,83 +423,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
   },
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingTop: 20,
-    maxHeight: '90%',
-    paddingHorizontal: 0,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F9F7',
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#1B4D3E',
-    letterSpacing: 0.3,
-  },
-  modalClose: {
-    fontSize: 24,
-    color: '#52796F',
-    fontWeight: '600',
-  },
-  modalScroll: {
-    maxHeight: 400,
-    paddingHorizontal: 16,
-  },
-  atividadeCard: {
-    backgroundColor: '#F0F9F7',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 12,
-    marginVertical: 8,
-    borderLeftWidth: 3,
-    borderLeftColor: '#27AE60',
-  },
-  atividadeHeader: {
-    marginBottom: 10,
-  },
-  atividadeTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#1B4D3E',
-    letterSpacing: 0.3,
-  },
-  atividadeLine: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  atividadeLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#52796F',
-  },
-  atividadeValue: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#27AE60',
-  },
+  // Modal styles removed - no longer using calendar modals
   fab: {
     position: 'absolute',
     bottom: 24,

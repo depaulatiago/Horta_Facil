@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import MaterialIcon from '@expo/vector-icons/MaterialIcons';
+import { initDatabase } from './src/services/database';
 
 // Importa as telas
 import SplashScreen from './src/screens/SplashScreen';
@@ -15,6 +16,21 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState('Splash');
   const [navigationStack, setNavigationStack] = useState([]);
   const [mainTab, setMainTab] = useState('hortas'); // 'hortas' ou 'calendario'
+  const [dbInitialized, setDbInitialized] = useState(false);
+
+  // Inicializa o banco de dados quando o app carrega
+  useEffect(() => {
+    const setupDatabase = async () => {
+      try {
+        await initDatabase();
+        setDbInitialized(true);
+        console.log('Banco de dados inicializado com sucesso');
+      } catch (error) {
+        console.error('Erro ao inicializar banco de dados:', error);
+      }
+    };
+    setupDatabase();
+  }, []);
 
   const navigate = (screen, params = {}) => {
     setNavigationStack((prev) => [...prev, { screen, params }]);

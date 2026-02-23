@@ -12,7 +12,7 @@ import {
   Platform,
 } from 'react-native';
 import MaterialIcon from '@expo/vector-icons/MaterialIcons';
-import { createHorta } from '../services/api';
+import { createHorta } from '../services/localDataService';
 
 const AddHortaScreen = ({ navigation }) => {
   const [nome, setNome] = useState('');

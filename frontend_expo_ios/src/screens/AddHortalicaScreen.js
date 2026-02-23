@@ -13,7 +13,7 @@ import {
   FlatList,
 } from 'react-native';
 import MaterialIcon from '@expo/vector-icons/MaterialIcons';
-import { fetchHortalicas, createCultivo, calcularDimensionamento } from '../services/api';
+import { fetchHortalicas, createCultivo } from '../services/localDataService';
 
 const AddHortalicaScreen = ({ route, navigation }) => {
   const { horta } = route.params;
@@ -112,8 +112,8 @@ const AddHortalicaScreen = ({ route, navigation }) => {
 
     try {
       const cultivoData = {
-        horta: horta.id,
-        hortalica: selectedHortalicaId,
+        horta_id: horta.id,
+        hortalica_id: selectedHortalicaId,
         num_modulos: parseInt(numModulos),
         producao_semanal_desejada: parseFloat(producaoSemanal),
         data_inicio: dataInicio,

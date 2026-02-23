@@ -9,28 +9,21 @@ import {
   ActivityIndicator,
   Alert,
   RefreshControl,
-  SectionList,
-  Dimensions,
-  Image,
-  Linking,
 } from 'react-native';
 import MaterialIcon from '@expo/vector-icons/MaterialIcons';
-import { fetchCalendarioConsolidado, gerarPDFSemanal, API_BASE_URL } from '../services/api';
-import * as FileSystem from 'expo-file-system/legacy';
-import * as Sharing from 'expo-sharing';
+import { fetchCultivos } from '../services/localDataService';
 
 const CalendarioScreen = ({ navigation }) => {
-  const [atividades, setAtividades] = useState([]);
+  const [cultivos, setCultivos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
-  const [filtroTipo, setFiltroTipo] = useState('todas'); // 'todas', 'plantio', 'colheita'
 
-  const loadCalendario = async () => {
+  const loadCultivos = async () => {
     try {
       setError(null);
-      const data = await fetchCalendarioConsolidado();
-      setAtividades(data);
+      const data = await fetchCultivos();
+      setCultivos(data);
     } catch (err) {
       setError(err.message);
       Alert.alert('Erro', err.message);
@@ -41,272 +34,103 @@ const CalendarioScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    loadCalendario();
+    loadCultivos();
   }, []);
 
   const onRefresh = () => {
     setRefreshing(true);
-    loadCalendario();
+    loadCultivos();
   };
 
-  const handleGerarPDF = async () => {
-    setLoading(true);
-    try {
-      const pdfUrl = await gerarPDFSemanal();
-
-      // Baixar o PDF direto para o cache
-      const filename = `cronograma_${new Date().getTime()}.pdf`;
-      const fileUri = FileSystem.cacheDirectory + filename;
-
-      const { uri } = await FileSystem.downloadAsync(pdfUrl, fileUri);
-
-      // Compartilhar arquivo
-      await Sharing.shareAsync(uri, {
-        mimeType: 'application/pdf',
-        dialogTitle: 'Cronograma Semanal',
-        UTI: 'com.adobe.pdf',
-      });
-    } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      Alert.alert('Erro', 'Não foi possível gerar o PDF: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
+  const calcularDataColheita = (dataInicio, cicloDesenvolvimento) => {
+    const data = new Date(dataInicio);
+    data.setDate(data.getDate() + (cicloDesenvolvimento * 7));
+    return data;
   };
 
-  const agruparPorData = (atividades) => {
+  const renderCultivoItem = ({ item }) => {
+    const dataInicio = new Date(item.data_inicio);
+    const dataColheita = calcularDataColheita(item.data_inicio, item.ciclo_desenvolvimento);
     const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-
-    const grupos = {
-      'Hoje': [],
-      'Próximos 7 dias': [],
-      'Próximos 30 dias': [],
-      'Depois': [],
-      'Vencidas': [],
-    };
-
-    atividades.forEach((atividade) => {
-      const dataTarefa = new Date(atividade.data_plantio);
-      dataTarefa.setHours(0, 0, 0, 0);
-
-      const diasDiferenca = Math.floor((dataTarefa - hoje) / (1000 * 60 * 60 * 24));
-
-      if (diasDiferenca < 0) {
-        grupos['Vencidas'].push(atividade);
-      } else if (diasDiferenca === 0) {
-        grupos['Hoje'].push(atividade);
-      } else if (diasDiferenca > 0 && diasDiferenca <= 7) {
-        grupos['Próximos 7 dias'].push(atividade);
-      } else if (diasDiferenca > 7 && diasDiferenca <= 30) {
-        grupos['Próximos 30 dias'].push(atividade);
-      } else if (diasDiferenca > 30) {
-        grupos['Depois'].push(atividade);
-      }
-    });
-
-    return Object.entries(grupos)
-      .filter(([_, items]) => items.length > 0)
-      .map(([titulo, data]) => ({
-        title: titulo,
-        data: data,
-      }));
-  };
-
-  const obterTipoAtividade = (atividade) => {
-    if (atividade.data_plantio) return 'plantio';
-    if (atividade.data_inicio_colheita) return 'colheita';
-    return 'outro';
-  };
-
-  const obterIconeAtividade = (tipo) => {
-    switch (tipo) {
-      case 'plantio':
-        return 'eco';
-      case 'colheita':
-        return 'local-florist';
-      default:
-        return 'calendar-today';
-    }
-  };
-
-  const obterTextoAtividade = (tipo) => {
-    switch (tipo) {
-      case 'plantio':
-        return 'Plantio';
-      case 'colheita':
-        return 'Colheita';
-      default:
-        return 'Outro';
-    }
-  };
-
-  const filtrarAtividades = (atividades) => {
-    if (filtroTipo === 'todas') {
-      return atividades;
-    }
-    return atividades.filter((a) => obterTipoAtividade(a) === filtroTipo);
-  };
-
-  const renderAtividadeItem = ({ item, section }) => {
-    const tipo = obterTipoAtividade(item);
-    const iconName = obterIconeAtividade(tipo);
-    const data = new Date(item.data_plantio).toLocaleDateString('pt-BR');
+    
+    const diasParaColheita = Math.floor((dataColheita - hoje) / (1000 * 60 * 60 * 24));
+    const status = diasParaColheita < 0 ? 'Atrasado' : diasParaColheita === 0 ? 'Hoje' : `${diasParaColheita} dias`;
 
     return (
-      <View style={styles.atividadeCard}>
-        <View style={styles.atividadeIcon}>
-          <MaterialIcon name={iconName} size={20} color="#27AE60" />
+      <View style={styles.cultivoCard}>
+        <View style={styles.cultivoIcon}>
+          <MaterialIcon name="eco" size={28} color="#27AE60" />
         </View>
-        <View style={styles.atividadeConteudo}>
-          <Text style={styles.atividadeTipo}>
-            {obterTextoAtividade(tipo)} - Módulo {item.modulo}
+        <View style={styles.cultivoConteudo}>
+          <Text style={styles.cultivoNome}>{item.hortalica_nome}</Text>
+          <Text style={styles.cultivoHorta}>
+            <MaterialIcon name="home" size={12} color="#666" /> {item.horta_nome}
           </Text>
-          <Text style={styles.atividadeHortaliça}>{item.hortalica_nome}</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <MaterialIcon name="home" size={12} color="#666" />
-            <Text style={styles.atividadeHorta}> {item.horta_nome}</Text>
-          </View>
-          <Text style={styles.atividadeData}>{data}</Text>
+          <Text style={styles.cultivoData}>
+            <MaterialIcon name="calendar-today" size={12} color="#666" /> Plantio: {dataInicio.toLocaleDateString('pt-BR')}
+          </Text>
+          <Text style={styles.cultivoData}>
+            <MaterialIcon name="local-florist" size={12} color="#666" /> Colheita: {dataColheita.toLocaleDateString('pt-BR')}
+          </Text>
+          <Text style={[styles.cultivoStatus, diasParaColheita < 0 && styles.statusAtrasado]}>
+            {diasParaColheita < 0 ? '⚠️ ' : '✓ '}{status}
+          </Text>
         </View>
-        <TouchableOpacity style={styles.atividadeBotao}>
-          <Text style={styles.atividadeBotaoTexto}>→</Text>
-        </TouchableOpacity>
       </View>
     );
   };
-
-  const renderSectionHeader = ({ section: { title } }) => (
-    <View style={styles.sectionHeader}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      <Text style={styles.sectionCount}>
-        <MaterialIcon name={title === 'Vencidas' ? 'schedule' : title === 'Hoje' ? 'my-location' : title === 'Próximos 7 dias' ? 'schedule' : title === 'Próximos 30 dias' ? 'calendar-today' : 'auto-awesome'} size={14} color="#999" />
-      </Text>
-    </View>
-  );
 
   if (loading) {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#4CAF50" />
-        <Text style={styles.loadingText}>Carregando cronograma...</Text>
+        <Text style={styles.loadingText}>Carregando cultivos...</Text>
       </View>
     );
   }
 
-  if (error && atividades.length === 0) {
+  if (error && cultivos.length === 0) {
     return (
       <View style={styles.centerContainer}>
-        <Text style={styles.errorIcon}>
-          <MaterialIcon name="warning" size={48} color="#E74C3C" />
-        </Text>
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={loadCalendario}>
+        <TouchableOpacity style={styles.retryButton} onPress={loadCultivos}>
           <Text style={styles.retryButtonText}>Tentar Novamente</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  const atividadesFiltradas = filtrarAtividades(atividades);
-  const secoes = agruparPorData(atividadesFiltradas);
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <Image 
-            source={require('../../assets/logo.png')} 
-            style={styles.headerLogo}
-          />
           <View style={styles.headerText}>
-            <Text style={styles.headerSubtitle}>Minhas Tarefas</Text>
-            <Text style={styles.headerTitle}>Cronograma</Text>
+            <Text style={styles.headerSubtitle}>Cronograma</Text>
+            <Text style={styles.headerTitle}>Calendário de Cultivos</Text>
           </View>
         </View>
-        
-        <TouchableOpacity 
-          style={styles.pdfButton}
-          onPress={handleGerarPDF}
-          disabled={loading}
-        >
-          <Text style={styles.pdfButtonText}>
-            <MaterialIcon name="picture-as-pdf" size={14} color="#FFF" /> Gerar PDF Semanal
-          </Text>
-        </TouchableOpacity>
       </View>
 
-      {/* Filtros */}
-      <View style={styles.filtrosContainer}>
-        <TouchableOpacity
-          style={[
-            styles.filtroButton,
-            filtroTipo === 'todas' && styles.filtroButtonAtivo,
-          ]}
-          onPress={() => setFiltroTipo('todas')}
-        >
-          <Text
-            style={[
-              styles.filtroTexto,
-              filtroTipo === 'todas' && styles.filtroTextoAtivo,
-            ]}
-          >
-            Todas
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filtroButton,
-            filtroTipo === 'plantio' && styles.filtroButtonAtivo,
-          ]}
-          onPress={() => setFiltroTipo('plantio')}
-        >
-          <Text
-            style={[
-              styles.filtroTexto,
-              filtroTipo === 'plantio' && styles.filtroTextoAtivo,
-            ]}
-          >
-            <MaterialIcon name="eco" size={14} color={filtroTipo === 'plantio' ? '#27AE60' : '#666'} /> Plantio
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filtroButton,
-            filtroTipo === 'colheita' && styles.filtroButtonAtivo,
-          ]}
-          onPress={() => setFiltroTipo('colheita')}
-        >
-          <Text
-            style={[
-              styles.filtroTexto,
-              filtroTipo === 'colheita' && styles.filtroTextoAtivo,
-            ]}
-          >
-            🌾 Colheita
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {secoes.length > 0 ? (
-        <SectionList
-          sections={secoes}
-          keyExtractor={(item, index) => `cultivo_${item.cultivo_id}_modulo_${item.modulo}_${index}`}
-          renderItem={renderAtividadeItem}
-          renderSectionHeader={renderSectionHeader}
+      {cultivos.length > 0 ? (
+        <FlatList
+          data={cultivos}
+          renderItem={renderCultivoItem}
+          keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContent}
           scrollIndicatorInsets={{ right: 1 }}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#27AE60']}
+              tintColor="#27AE60"
+            />
           }
-          stickySectionHeadersEnabled={false}
         />
       ) : (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>🎉</Text>
-          <Text style={styles.emptyText}>Nenhuma tarefa encontrada</Text>
+          <MaterialIcon name="eco" size={48} color="#CCC" />
+          <Text style={styles.emptyText}>Nenhum cultivo cadastrado</Text>
           <Text style={styles.emptySubtext}>
             Adicione cultivos às suas hortas para ver o cronograma
           </Text>
@@ -344,12 +168,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  headerLogo: {
-    width: 56,
-    height: 56,
-    borderRadius: 14,
-    marginRight: 16,
-  },
   headerText: {
     flex: 1,
   },
@@ -365,141 +183,76 @@ const styles = StyleSheet.create({
     color: '#fff',
     letterSpacing: 0.5,
   },
-  filtrosContainer: {
-    flexDirection: 'row',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  filtroButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginHorizontal: 4,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  filtroButtonAtivo: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
-  },
-  filtroTexto: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#666',
-  },
-  filtroTextoAtivo: {
-    color: '#fff',
-  },
   listContent: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 20,
+    paddingBottom: 100,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginVertical: 8,
-    marginHorizontal: 8,
-    borderRadius: 8,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-  },
-  sectionCount: {
-    fontSize: 18,
-  },
-  atividadeCard: {
+  cultivoCard: {
     flexDirection: 'row',
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 12,
-    marginVertical: 6,
-    marginHorizontal: 8,
-    alignItems: 'center',
+    padding: 16,
+    marginVertical: 8,
+    alignItems: 'flex-start',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    borderLeftWidth: 4,
+    borderLeftColor: '#27AE60',
   },
-  atividadeIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#f0f0f0',
-    justifyContent: 'center',
-    alignItems: 'center',
+  cultivoIcon: {
     marginRight: 12,
+    marginTop: 2,
   },
-  atividadeIconText: {
-    fontSize: 24,
-  },
-  atividadeConteudo: {
+  cultivoConteudo: {
     flex: 1,
   },
-  atividadeTipo: {
-    fontSize: 14,
+  cultivoNome: {
+    fontSize: 16,
     fontWeight: '700',
-    color: '#333',
-    marginBottom: 4,
+    color: '#1B4D3E',
+    marginBottom: 6,
   },
-  atividadeHortaliça: {
+  cultivoHorta: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#4CAF50',
-    marginBottom: 2,
-  },
-  atividadeHorta: {
-    fontSize: 12,
     color: '#666',
     marginBottom: 4,
   },
-  atividadeData: {
-    fontSize: 11,
+  cultivoData: {
+    fontSize: 12,
     color: '#999',
-    fontStyle: 'italic',
+    marginBottom: 4,
+    fontWeight: '500',
   },
-  atividadeBotao: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+  cultivoStatus: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#27AE60',
+    marginTop: 6,
   },
-  atividadeBotaoTexto: {
-    fontSize: 18,
-    color: '#4CAF50',
+  statusAtrasado: {
+    color: '#d32f2f',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+    padding: 20,
   },
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
+    marginTop: 16,
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
     color: '#999',
     textAlign: 'center',
-    paddingHorizontal: 32,
-  },
-  errorIcon: {
-    fontSize: 48,
-    marginBottom: 16,
   },
   errorText: {
     fontSize: 14,
@@ -513,6 +266,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
+    marginTop: 12,
   },
   retryButtonText: {
     color: '#fff',
@@ -523,25 +277,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 14,
     color: '#666',
-  },
-  pdfButton: {
-    backgroundColor: '#E74C3C',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginTop: 12,
-    marginHorizontal: 20,
-    elevation: 3,
-    shadowColor: '#E74C3C',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-  pdfButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-    textAlign: 'center',
   },
 });
 
