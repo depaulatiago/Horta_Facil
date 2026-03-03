@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, TouchableOpacity, Text, StyleSheet, Animated, Dimensions } from 'react-native';
 import MaterialIcon from '@expo/vector-icons/MaterialIcons';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { initDatabase } from './src/services/database';
 
 // Importa as telas
@@ -12,11 +13,25 @@ import HortaDetalheScreen from './src/screens/HortaDetalheScreen';
 import AddHortalicaScreen from './src/screens/AddHortalicaScreen';
 import HortalicaDetalheScreen from './src/screens/HortalicaDetalheScreen';
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
 export default function App() {
+  return (
+    <SafeAreaProvider>
+      <AppContent />
+    </SafeAreaProvider>
+  );
+}
+
+function AppContent() {
   const [currentScreen, setCurrentScreen] = useState('Splash');
   const [navigationStack, setNavigationStack] = useState([]);
   const [mainTab, setMainTab] = useState('hortas'); // 'hortas' ou 'calendario'
   const [dbInitialized, setDbInitialized] = useState(false);
+  const [isSwitchingTab, setIsSwitchingTab] = useState(false);
+  const [tabTransition, setTabTransition] = useState(null);
+  const tabTransitionProgress = useRef(new Animated.Value(0)).current;
+  const insets = useSafeAreaInsets();
 
   // Inicializa o banco de dados quando o app carrega
   useEffect(() => {
@@ -55,13 +70,38 @@ export default function App() {
   };
 
   const switchTab = (tab) => {
-    setMainTab(tab);
-    setNavigationStack([]);
-    if (tab === 'hortas') {
-      setCurrentScreen('HortaList');
-    } else if (tab === 'calendario') {
-      setCurrentScreen('Calendario');
+    if (isSwitchingTab || tab === mainTab) {
+      return;
     }
+
+    const targetScreen = tab === 'hortas' ? 'HortaList' : 'Calendario';
+    const currentTabIndex = mainTab === 'hortas' ? 0 : 1;
+    const targetTabIndex = tab === 'hortas' ? 0 : 1;
+    const direction = targetTabIndex > currentTabIndex ? 'left' : 'right';
+    const params = getCurrentParams();
+
+    setIsSwitchingTab(true);
+    setTabTransition({
+      fromScreen: currentScreen,
+      toScreen: targetScreen,
+      fromParams: params,
+      toParams: {},
+      direction,
+    });
+    tabTransitionProgress.setValue(0);
+
+    Animated.timing(tabTransitionProgress, {
+      toValue: 1,
+      duration: 260,
+      useNativeDriver: true,
+    }).start(() => {
+      setMainTab(tab);
+      setNavigationStack([]);
+      setCurrentScreen(targetScreen);
+      setTabTransition(null);
+      setIsSwitchingTab(false);
+    });
+
   };
 
   const getCurrentParams = () => {
@@ -71,10 +111,8 @@ export default function App() {
     return {};
   };
 
-  const renderScreen = () => {
-    const params = getCurrentParams();
-    
-    switch (currentScreen) {
+  const renderScreenByName = (screen, params = {}) => {
+    switch (screen) {
       case 'Splash':
         return <SplashScreen navigation={{ replace: navigate }} />;
       case 'HortaList':
@@ -94,25 +132,76 @@ export default function App() {
     }
   };
 
+  const renderScreen = () => {
+    const params = getCurrentParams();
+    return renderScreenByName(currentScreen, params);
+  };
+
   // Na tela Splash não mostra abas
   if (currentScreen === 'Splash') {
     return <View style={{ flex: 1 }}>{renderScreen()}</View>;
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>
-        {renderScreen()}
-      </View>
+    <View style={styles.appContainer}>
+      {tabTransition ? (
+        <View style={styles.transitionContainer}>
+          <Animated.View
+            style={[
+              styles.transitionLayer,
+              {
+                transform: [
+                  {
+                    translateX: tabTransitionProgress.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, tabTransition.direction === 'left' ? -SCREEN_WIDTH : SCREEN_WIDTH],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            {renderScreenByName(tabTransition.fromScreen, tabTransition.fromParams)}
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              styles.transitionLayer,
+              {
+                transform: [
+                  {
+                    translateX: tabTransitionProgress.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [tabTransition.direction === 'left' ? SCREEN_WIDTH : -SCREEN_WIDTH, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            {renderScreenByName(tabTransition.toScreen, tabTransition.toParams)}
+          </Animated.View>
+        </View>
+      ) : (
+        <View style={styles.screenContainer}>{renderScreen()}</View>
+      )}
 
       {/* Bottom Tab Navigation */}
-      <View style={styles.tabBar}>
+      <View
+        style={[
+          styles.tabBar,
+          {
+            paddingBottom: Math.max(8, insets.bottom),
+          },
+        ]}
+      >
         <TouchableOpacity
           style={[
             styles.tabButton,
             mainTab === 'hortas' && styles.tabButtonActive,
           ]}
           onPress={() => switchTab('hortas')}
+          disabled={isSwitchingTab}
         >
           <MaterialIcon 
             name="eco" 
@@ -133,6 +222,7 @@ export default function App() {
             mainTab === 'calendario' && styles.tabButtonActive,
           ]}
           onPress={() => switchTab('calendario')}
+          disabled={isSwitchingTab}
         >
           <MaterialIcon 
             name="calendar-today" 
@@ -152,6 +242,23 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  appContainer: {
+    flex: 1,
+    backgroundColor: '#F0F9F7',
+  },
+  screenContainer: {
+    flex: 1,
+    backgroundColor: '#F0F9F7',
+  },
+  transitionContainer: {
+    flex: 1,
+    backgroundColor: '#F0F9F7',
+    overflow: 'hidden',
+  },
+  transitionLayer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#F0F9F7',
+  },
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#fff',

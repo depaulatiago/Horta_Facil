@@ -10,6 +10,7 @@ import {
   Alert,
   RefreshControl,
   ScrollView,
+  Image,
 } from 'react-native';
 import MaterialIcon from '@expo/vector-icons/MaterialIcons';
 import { fetchCultivos } from '../services/localDataService';
@@ -349,8 +350,11 @@ const CalendarioScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
+          <Image 
+            source={require('../../assets/logo.png')} 
+            style={styles.headerLogo}
+          />
           <View style={styles.headerText}>
-            <Text style={styles.headerSubtitle}>Cronograma</Text>
             <Text style={styles.headerTitle}>Calendário de Cultivos</Text>
           </View>
         </View>
@@ -424,6 +428,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  headerLogo: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
+    marginRight: 16,
+  },
   headerText: {
     flex: 1,
   },
@@ -438,6 +448,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#fff',
     letterSpacing: 0.5,
+    marginTop: 2,
   },
   listContent: {
     paddingHorizontal: 12,
