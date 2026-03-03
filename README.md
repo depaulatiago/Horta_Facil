@@ -1,97 +1,117 @@
-# Horta Fácil
+# Frontend Mobile - Horta Fácil (Expo)
 
-Sistema web para planejamento, dimensionamento e gerenciamento de hortas comerciais, domésticas e comunitárias.
+Aplicativo React Native com Expo para Android e iOS.
 
----
+## Pré-requisitos
 
-## Como rodar o projeto
+- Node.js 18+
+- npm
+- Expo Go no celular (Android/iOS) para testes rápidos
+- Conta Expo para EAS Build
 
-### Requisitos
-
-- Python 3.12+
-- Node.js 16+
-- Docker (opcional)
-
----
-
-## 🚀 Opção 1: Rodar sem Docker (Recomendado para desenvolvimento)
-
-### 1. Backend (Django)
+## Instalação
 
 ```bash
-# Entre na pasta do backend
-cd backend
-
-# Crie e ative o virtual environment
-python3 -m venv venv
-source venv/bin/activate  # No Windows: venv\Scripts\activate
-
-# Instale as dependências
-pip install -r requirements.txt
-
-# Rode as migrations
-python manage.py migrate
-
-# Carregue dados de exemplo (opcional)
-python manage.py loaddata core/fixtures/seed_data.json
-
-# Inicie o servidor
-python manage.py runserver 0.0.0.0:8000
-```
-
-Backend rodando em: **http://localhost:8000/api/**
-
-### 2. Frontend (Expo Web)
-
-Em outro terminal:
-
-```bash
-# Entre na pasta do frontend
 cd frontend_expo_ios
-
-# Instale as dependências
 npm install
-
-# Inicie o servidor web
-npm start
-
-# Escolha 'w' para rodar no navegador
 ```
 
-Frontend rodando em: **http://localhost:19006**
-
----
-
-## 🐳 Opção 2: Rodar com Docker
+## Executar em desenvolvimento
 
 ```bash
-# Na raiz do projeto
-docker-compose up
+# iniciar Metro
+npx expo start
+
+# limpar cache (quando necessário)
+npx expo start -c
 ```
 
-Isso inicia o backend em **http://localhost:8000/api/**
+Atalhos úteis:
 
-Depois abra outro terminal para o frontend:
+- Android: npx expo start --android
+- iOS (macOS): npx expo start --ios
+- Tunnel: npx expo start --tunnel
+
+## Configuração EAS (já incluída no projeto)
+
+Este projeto já possui:
+
+- projectId no app.json
+- perfis em eas.json: development, preview e production
+
+Login:
 
 ```bash
-cd frontend_expo_ios
-npm start
-# Escolha 'w' para web
+npx eas login
+npx eas whoami
 ```
 
----
+## Build com EAS
 
-## 📝 Notas importantes
+### Android
 
-- **Para voltar a ativar o venv** em novos terminais, execute:
-  ```bash
-  source venv/bin/activate  # ou: cd backend && source venv/bin/activate
-  ```
+```bash
+# build de produção (atual: APK)
+npx eas build --platform android --profile production
 
-- **Frontend precisa que o backend esteja rodando** para funcionar corretamente
+# build interno para testes
+npx eas build --platform android --profile preview
+```
 
-- **Banco de dados**: SQLite (arquivo `db.sqlite3` na pasta `backend/`)
+### iOS
 
----
+```bash
+# build de produção
+npx eas build --platform ios --profile production
 
-Projeto criado como extensão universitária.
+# build interno para testes/TestFlight
+npx eas build --platform ios --profile preview
+```
+
+## Envio para lojas
+
+Depois que o build finalizar:
+
+```bash
+# Android (Play Console)
+npx eas submit --platform android --profile production
+
+# iOS (App Store Connect/TestFlight)
+npx eas submit --platform ios --profile production
+```
+
+## Observações importantes
+
+- O profile production Android está configurado como APK em eas.json.
+- Para Google Play, o formato recomendado é AAB (app-bundle).
+- Se alterar package, version, ou credenciais, gere novo build.
+
+## Troubleshooting
+
+### Build falha por cache/dependências
+
+```bash
+rm -rf node_modules package-lock.json
+npm install
+npx expo start -c
+```
+
+### Erro de módulo não resolvido
+
+```bash
+npx expo install <nome-do-pacote>
+npx expo start -c
+```
+
+### Erro de login EAS
+
+```bash
+npx eas logout
+npx eas login
+```
+
+## Referências
+
+- Expo: https://docs.expo.dev
+- EAS Build: https://docs.expo.dev/build/introduction
+- EAS Submit: https://docs.expo.dev/submit/introduction
