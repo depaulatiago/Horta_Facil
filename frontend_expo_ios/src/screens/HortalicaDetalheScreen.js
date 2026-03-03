@@ -11,7 +11,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { deleteCultivo } from '../services/localDataService';
+import { deleteCultivo, calcularDimensionamento } from '../services/localDataService';
 
 const HortalicaDetalheScreen = ({ route, navigation }) => {
   const { cultivoDetalhado } = route.params;

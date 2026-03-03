@@ -133,6 +133,43 @@ export const deleteHortalica = async (id) => {
   }
 };
 
+export const calcularDimensionamento = async (hortalicaId, producaoDesejada) => {
+  try {
+    const hortalica = await fetchHortalicaById(hortalicaId);
+
+    if (!hortalica) {
+      throw new Error('Hortaliça não encontrada');
+    }
+
+    const producao = Number(producaoDesejada);
+    const produtividade = Number(hortalica.produtividade_esperada);
+    const areaModulo = Number(hortalica.area_modulo);
+
+    if (!Number.isFinite(producao) || producao <= 0) {
+      throw new Error('Informe uma produção semanal válida');
+    }
+
+    if (!Number.isFinite(produtividade) || produtividade <= 0) {
+      throw new Error('Produtividade esperada inválida para esta hortaliça');
+    }
+
+    if (!Number.isFinite(areaModulo) || areaModulo <= 0) {
+      throw new Error('Área por módulo inválida para esta hortaliça');
+    }
+
+    const num_modulos_calculado = Math.max(1, Math.ceil(producao / produtividade));
+    const area_total_calculada = Number((num_modulos_calculado * areaModulo).toFixed(2));
+
+    return {
+      num_modulos_calculado,
+      area_total_calculada,
+    };
+  } catch (error) {
+    console.error('Erro ao calcular dimensionamento:', error);
+    throw new Error(error.message || 'Erro ao calcular dimensionamento');
+  }
+};
+
 /**
  * OPERAÇÕES COM CULTIVOS (instâncias de plantio)
  */

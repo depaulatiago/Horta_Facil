@@ -13,7 +13,7 @@ import {
   FlatList,
 } from 'react-native';
 import MaterialIcon from '@expo/vector-icons/MaterialIcons';
-import { fetchHortalicas, createCultivo } from '../services/localDataService';
+import { fetchHortalicas, createCultivo, calcularDimensionamento } from '../services/localDataService';
 
 const AddHortalicaScreen = ({ route, navigation }) => {
   const { horta } = route.params;
@@ -274,7 +274,7 @@ const AddHortalicaScreen = ({ route, navigation }) => {
               {calculoLoading ? (
                 <ActivityIndicator color="#fff" size="small" />
               ) : (
-                <Text style={styles.calculoButtonText}>📐</Text>
+                <MaterialIcon name="calculate" size={20} color="#fff" />
               )}
             </TouchableOpacity>
           </View>
