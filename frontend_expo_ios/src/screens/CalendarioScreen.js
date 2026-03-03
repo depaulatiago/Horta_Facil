@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import MaterialIcon from '@expo/vector-icons/MaterialIcons';
 import { fetchCultivos } from '../services/localDataService';
-import * as FileSystem from 'expo-file-system/legacy';
+import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 
 const CalendarioScreen = ({ navigation }) => {
@@ -48,6 +48,18 @@ const CalendarioScreen = ({ navigation }) => {
   const gerarPDF = async () => {
     try {
       setLoading(true);
+
+      const hoje = new Date();
+      const totalCultivos = cultivos.length;
+      const atrasados = cultivos.filter((item) => {
+        const dataColheita = calcularDataColheita(item.data_inicio, item.ciclo_desenvolvimento);
+        return Math.floor((dataColheita - hoje) / (1000 * 60 * 60 * 24)) < 0;
+      }).length;
+      const colheitaHoje = cultivos.filter((item) => {
+        const dataColheita = calcularDataColheita(item.data_inicio, item.ciclo_desenvolvimento);
+        return Math.floor((dataColheita - hoje) / (1000 * 60 * 60 * 24)) === 0;
+      }).length;
+      const noPrazo = totalCultivos - atrasados - colheitaHoje;
       
       // Cria conteúdo HTML para o PDF
       let htmlContent = `
@@ -55,35 +67,181 @@ const CalendarioScreen = ({ navigation }) => {
           <head>
             <meta charset="UTF-8">
             <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              h1 { color: #27AE60; text-align: center; }
-              h2 { color: #1B4D3E; margin-top: 20px; }
-              table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-              th { background-color: #27AE60; color: white; }
-              tr:nth-child(even) { background-color: #f9f9f9; }
+              * { box-sizing: border-box; }
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+                margin: 0;
+                color: #1f2937;
+                background: #f5faf7;
+              }
+              .page {
+                padding: 28px;
+              }
+              .header {
+                background: linear-gradient(135deg, #1f9d58 0%, #27ae60 45%, #56c779 100%);
+                color: #ffffff;
+                border-radius: 16px;
+                padding: 24px;
+                box-shadow: 0 8px 20px rgba(39, 174, 96, 0.22);
+              }
+              .title {
+                margin: 0;
+                font-size: 28px;
+                font-weight: 800;
+                letter-spacing: 0.2px;
+                color: #d9fbe5;
+              }
+              .subtitle {
+                margin: 8px 0 0;
+                font-size: 13px;
+                opacity: 0.95;
+              }
+              .summary {
+                margin: 18px 0 20px;
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 12px 0;
+              }
+              .summary td {
+                width: 25%;
+                border: none;
+                padding: 0;
+                vertical-align: top;
+              }
+              .summary-card {
+                background: #ffffff;
+                border-radius: 12px;
+                padding: 14px;
+                border: 1px solid #e5efe8;
+                box-shadow: 0 3px 10px rgba(16, 24, 40, 0.06);
+              }
+              .summary-label {
+                margin: 0;
+                font-size: 11px;
+                color: #6b7280;
+                text-transform: uppercase;
+                letter-spacing: 0.7px;
+              }
+              .summary-value {
+                margin: 6px 0 0;
+                font-size: 24px;
+                font-weight: 700;
+                color: #0f5132;
+              }
+              .section-title {
+                margin: 20px 0 10px;
+                font-size: 15px;
+                font-weight: 700;
+                color: #14532d;
+              }
+              .table-wrapper {
+                background: #ffffff;
+                border-radius: 14px;
+                border: 1px solid #dfeee3;
+                overflow: hidden;
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+              }
+              th {
+                background: #1f8a4d;
+                color: #ffffff;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                padding: 12px 10px;
+                text-align: left;
+              }
+              td {
+                border-bottom: 1px solid #ecf3ee;
+                padding: 11px 10px;
+                font-size: 12px;
+                color: #334155;
+              }
+              tr:nth-child(even) { background-color: #f8fcf9; }
+              .status {
+                display: inline-block;
+                font-weight: 700;
+                font-size: 11px;
+                padding: 4px 9px;
+                border-radius: 999px;
+              }
+              .status-ok {
+                background: #dcfce7;
+                color: #166534;
+              }
+              .status-hoje {
+                background: #e0f2fe;
+                color: #0c4a6e;
+              }
+              .status-atrasado {
+                background: #fee2e2;
+                color: #991b1b;
+              }
+              .footer {
+                margin-top: 18px;
+                text-align: center;
+                font-size: 11px;
+                color: #6b7280;
+              }
             </style>
           </head>
           <body>
-            <h1>📅 Cronograma de Cultivos - Horta Fácil</h1>
-            <p><strong>Data de Geração:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
-            <table>
-              <tr>
-                <th>Horta</th>
-                <th>Hortaliça</th>
-                <th>Data de Plantio</th>
-                <th>Data de Colheita</th>
-                <th>Módulos</th>
-                <th>Status</th>
-              </tr>
+            <div class="page">
+              <div class="header">
+                <h1 class="title">Cronograma de Cultivos</h1>
+                <p class="subtitle">Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} • Horta Fácil</p>
+              </div>
+
+              <table class="summary">
+                <tr>
+                  <td>
+                    <div class="summary-card">
+                      <p class="summary-label">Total de cultivos</p>
+                      <p class="summary-value">${totalCultivos}</p>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="summary-card">
+                      <p class="summary-label">No prazo</p>
+                      <p class="summary-value">${noPrazo}</p>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="summary-card">
+                      <p class="summary-label">Colheita hoje</p>
+                      <p class="summary-value">${colheitaHoje}</p>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="summary-card">
+                      <p class="summary-label">Atrasados</p>
+                      <p class="summary-value">${atrasados}</p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <h2 class="section-title">Planejamento detalhado</h2>
+              <div class="table-wrapper">
+                <table>
+                  <tr>
+                    <th>Horta</th>
+                    <th>Hortaliça</th>
+                    <th>Data de Plantio</th>
+                    <th>Data de Colheita</th>
+                    <th>Módulos</th>
+                    <th>Status</th>
+                  </tr>
       `;
 
       cultivos.forEach(item => {
         const dataInicio = new Date(item.data_inicio);
         const dataColheita = calcularDataColheita(item.data_inicio, item.ciclo_desenvolvimento);
-        const hoje = new Date();
         const diasParaColheita = Math.floor((dataColheita - hoje) / (1000 * 60 * 60 * 24));
-        const status = diasParaColheita < 0 ? '⚠️ Atrasado' : diasParaColheita === 0 ? '✓ Hoje' : `✓ ${diasParaColheita} dias`;
+        const status = diasParaColheita < 0 ? 'Atrasado' : diasParaColheita === 0 ? 'Hoje' : `${diasParaColheita} dias`;
+        const statusClass = diasParaColheita < 0 ? 'status-atrasado' : diasParaColheita === 0 ? 'status-hoje' : 'status-ok';
 
         htmlContent += `
           <tr>
@@ -92,32 +250,32 @@ const CalendarioScreen = ({ navigation }) => {
             <td>${dataInicio.toLocaleDateString('pt-BR')}</td>
             <td>${dataColheita.toLocaleDateString('pt-BR')}</td>
             <td>${item.num_modulos}</td>
-            <td>${status}</td>
+            <td><span class="status ${statusClass}">${status}</span></td>
           </tr>
         `;
       });
 
       htmlContent += `
-            </table>
-            <footer style="margin-top: 30px; text-align: center; color: #999; font-size: 12px;">
-              <p>Gerado pelo aplicativo Horta Fácil</p>
-            </footer>
+                </table>
+              </div>
+              <div class="footer">
+                <p>Relatório emitido automaticamente pelo aplicativo Horta Fácil</p>
+              </div>
+            </div>
           </body>
         </html>
       `;
 
-      // Salva o arquivo HTML com encoding UTF-8 explícito
-      const filename = `cronograma_${new Date().getTime()}.html`;
-      const fileUri = FileSystem.documentDirectory + filename;
-      
-      await FileSystem.writeAsStringAsync(fileUri, htmlContent, {
-        encoding: FileSystem.EncodingType.UTF8
+      // Gera PDF a partir do HTML
+      const { uri } = await Print.printToFileAsync({
+        html: htmlContent,
       });
-      
-      // Compartilha o arquivo
-      await Sharing.shareAsync(fileUri, {
-        mimeType: 'text/html',
+
+      // Compartilha o PDF
+      await Sharing.shareAsync(uri, {
+        mimeType: 'application/pdf',
         dialogTitle: 'Cronograma de Cultivos',
+        UTI: 'com.adobe.pdf',
       });
 
       Alert.alert('Sucesso', 'Cronograma gerado com sucesso!');
@@ -160,7 +318,7 @@ const CalendarioScreen = ({ navigation }) => {
             <MaterialIcon name="local-florist" size={12} color="#666" /> Colheita: {dataColheita.toLocaleDateString('pt-BR')}
           </Text>
           <Text style={[styles.cultivoStatus, diasParaColheita < 0 && styles.statusAtrasado]}>
-            {diasParaColheita < 0 ? '⚠️ ' : '✓ '}{status}
+            {status}
           </Text>
         </View>
       </View>
